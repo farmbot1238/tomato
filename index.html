@@ -1,20 +1,92 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Teachable Machine Demo</title>
+  <title>FARM 8OT Training</title>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #e0f7fa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px;
+    }
+    h1 {
+      text-align: center;
+      color: #00796b;
+      margin-bottom: 10px;
+    }
+    #controls {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    button {
+      padding: 12px 25px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background-color: #00796b;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #004d40;
+    }
+    #container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    #webcam-container {
+      border: 4px solid #004d40;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    }
+    #label-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 300px;
+    }
+    .label {
+      background: #ffffffcc;
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .bar {
+      height: 12px;
+      border-radius: 6px;
+      background: #ff5722;
+      margin-left: 10px;
+      flex-grow: 1;
+      transition: width 0.3s, background 0.3s;
+    }
+  </style>
 </head>
 <body>
-  <h2>تشغيل نموذج Teachable Machine</h2>
-  <button type="button" onclick="init()">Start</button>
-  <div id="webcam-container"></div>
-  <div id="label-container"></div>
+  <h1>FARM 8OT</h1>
+  <div id="controls">
+    <button onclick="init()">Start Training</button>
+  </div>
 
-  <script type="text/javascript">
-    // رابط نموذجك على GitHub Pages
-    const URL = "https://farmbot1238.github.io/tomato/";
+  <div id="container">
+    <div id="webcam-container"></div>
+    <div id="label-container"></div>
+  </div>
 
+  <script>
+    const URL = "https://farmbot1238.github.io/tomato/"; // رابط نموذجك على GitHub
     let model, webcam, labelContainer, maxPredictions;
 
     async function init() {
@@ -22,27 +94,27 @@
       const metadataURL = URL + "metadata.json";
 
       try {
-        // تحميل النموذج وملفات التعريف
         model = await tmImage.load(modelURL, metadataURL);
         maxPredictions = model.getTotalClasses();
 
-        // إعداد الكاميرا
-        const flip = true;
-        webcam = new tmImage.Webcam(320, 320, flip); // حجم أكبر أفضل
+        webcam = new tmImage.Webcam(320, 320, true);
         await webcam.setup();
         await webcam.play();
-        window.requestAnimationFrame(loop);
-
-        // إضافة الكاميرا ونتائج التنبؤ للصفحة
         document.getElementById("webcam-container").appendChild(webcam.canvas);
+
         labelContainer = document.getElementById("label-container");
+        labelContainer.innerHTML = "";
         for (let i = 0; i < maxPredictions; i++) {
-          labelContainer.appendChild(document.createElement("div"));
+          const div = document.createElement("div");
+          div.className = "label";
+          div.innerHTML = `${model.getClassLabels()[i]} <div class="bar" id="bar${i}"></div>`;
+          labelContainer.appendChild(div);
         }
 
+        window.requestAnimationFrame(loop);
       } catch (err) {
         console.error("Error loading model:", err);
-        alert("فشل تحميل النموذج. تأكد أن الملفات موجودة في GitHub Pages.");
+        alert("Failed to load model. Check your GitHub Pages files.");
       }
     }
 
@@ -55,9 +127,14 @@
     async function predict() {
       const prediction = await model.predict(webcam.canvas);
       for (let i = 0; i < maxPredictions; i++) {
-        const classPrediction =
-          prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-        labelContainer.childNodes[i].innerHTML = classPrediction;
+        const prob = prediction[i].probability;
+        const bar = document.getElementById(`bar${i}`);
+        bar.style.width = `${prob * 100}%`;
+
+        // تغيير لون حسب الاحتمال
+        if (prob > 0.75) bar.style.background = "#4caf50"; // أخضر
+        else if (prob > 0.4) bar.style.background = "#ffeb3b"; // أصفر
+        else bar.style.background = "#f44336"; // أحمر
       }
     }
   </script>
