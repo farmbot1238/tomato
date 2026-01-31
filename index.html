@@ -12,8 +12,8 @@
   <div id="label-container"></div>
 
   <script type="text/javascript">
-    // رابط ملفات النموذج على GitHub Pages
-    const URL = "https://username.github.io/repo-name/"; // ضع رابطك هنا
+    // رابط نموذجك على GitHub Pages
+    const URL = "https://farmbot1238.github.io/tomato/";
 
     let model, webcam, labelContainer, maxPredictions;
 
@@ -21,22 +21,28 @@
       const modelURL = URL + "model.json";
       const metadataURL = URL + "metadata.json";
 
-      // تحميل النموذج وملفات التعريف
-      model = await tmImage.load(modelURL, metadataURL);
-      maxPredictions = model.getTotalClasses();
+      try {
+        // تحميل النموذج وملفات التعريف
+        model = await tmImage.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
 
-      // إعداد الكاميرا
-      const flip = true;
-      webcam = new tmImage.Webcam(200, 200, flip);
-      await webcam.setup();
-      await webcam.play();
-      window.requestAnimationFrame(loop);
+        // إعداد الكاميرا
+        const flip = true;
+        webcam = new tmImage.Webcam(320, 320, flip); // حجم أكبر أفضل
+        await webcam.setup();
+        await webcam.play();
+        window.requestAnimationFrame(loop);
 
-      // إضافة الكاميرا ونتائج التنبؤ للصفحة
-      document.getElementById("webcam-container").appendChild(webcam.canvas);
-      labelContainer = document.getElementById("label-container");
-      for (let i = 0; i < maxPredictions; i++) {
-        labelContainer.appendChild(document.createElement("div"));
+        // إضافة الكاميرا ونتائج التنبؤ للصفحة
+        document.getElementById("webcam-container").appendChild(webcam.canvas);
+        labelContainer = document.getElementById("label-container");
+        for (let i = 0; i < maxPredictions; i++) {
+          labelContainer.appendChild(document.createElement("div"));
+        }
+
+      } catch (err) {
+        console.error("Error loading model:", err);
+        alert("فشل تحميل النموذج. تأكد أن الملفات موجودة في GitHub Pages.");
       }
     }
 
