@@ -87,17 +87,18 @@
       font-size: 18px;
       display: flex;
       justify-content: space-between;
-      border-left: 4px solid #4dccbd;
+      transition: all 0.3s ease;
+      border-left: 5px solid transparent;
     }
     
     .prediction-class {
       font-weight: bold;
-      color: #4dccbd;
+      transition: all 0.3s ease;
     }
     
     .prediction-prob {
-      color: #e9c46a;
       font-weight: bold;
+      transition: all 0.3s ease;
     }
     
     #webcam-placeholder {
@@ -236,6 +237,7 @@
 
     function startCounter() {
       counter = 0;
+      document.getElementById('counterValue').textContent = counter;
       updateCounterColor();
       
       counterInterval = setInterval(() => {
@@ -258,17 +260,17 @@
       
       // تحديث لون العداد حسب القيمة
       if (counter >= 70 && counter <= 100) {
-        // أخضر للقيم العالية
-        counterElement.style.color = '#4CAF50';
+        counterElement.style.color = '#4CAF50'; // أخضر
+        counterElement.style.textShadow = '0 0 10px rgba(76, 175, 80, 0.7)';
       } else if (counter >= 40 && counter <= 69) {
-        // أصفر للقيم المتوسطة
-        counterElement.style.color = '#FFC107';
+        counterElement.style.color = '#FFC107'; // أصفر
+        counterElement.style.textShadow = '0 0 10px rgba(255, 193, 7, 0.7)';
       } else if (counter >= 1 && counter <= 39) {
-        // أحمر للقيم المنخفضة
-        counterElement.style.color = '#F44336';
+        counterElement.style.color = '#F44336'; // أحمر
+        counterElement.style.textShadow = '0 0 10px rgba(244, 67, 54, 0.7)';
       } else {
-        // أبيض للصفر
-        counterElement.style.color = '#FFFFFF';
+        counterElement.style.color = '#FFFFFF'; // أبيض
+        counterElement.style.textShadow = '0 0 10px rgba(255, 255, 255, 0.3)';
       }
     }
 
@@ -284,14 +286,48 @@
       const prediction = await model.predict(webcam.canvas);
       
       for (let i = 0; i < maxPredictions; i++) {
-        const className = prediction[i].className === "لا شيء" ? "There is nothing" : prediction[i].className;
-        const probability = prediction[i].probability.toFixed(2);
+        let className = prediction[i].className;
+        const probability = prediction[i].probability;
+        const probPercent = Math.round(probability * 100); // تحويل لنسبة مئوية
+        
+        // تغيير النص إذا كان "لا شيء"
+        if (className === "لا شيء") {
+          className = "There is nothing";
+        }
         
         if (labelContainer.childNodes[i]) {
           labelContainer.childNodes[i].innerHTML = `
             <span class="prediction-class">${className}</span>
-            <span class="prediction-prob">${probability}</span>
+            <span class="prediction-prob">${probability.toFixed(2)}</span>
           `;
+          
+          // تحديد اللون حسب نسبة الاحتمال (0-100)
+          const predictionClass = labelContainer.childNodes[i].querySelector('.prediction-class');
+          const predictionProb = labelContainer.childNodes[i].querySelector('.prediction-prob');
+          const predictionItem = labelContainer.childNodes[i];
+          
+          // تطبيق الألوان حسب النسبة المئوية
+          if (probPercent >= 70 && probPercent <= 100) {
+            // أخضر للقيم العالية (70-100)
+            predictionClass.style.color = '#4CAF50'; // أخضر
+            predictionProb.style.color = '#4CAF50';
+            predictionItem.style.borderLeftColor = '#4CAF50';
+          } else if (probPercent >= 40 && probPercent <= 69) {
+            // أصفر للقيم المتوسطة (40-69)
+            predictionClass.style.color = '#FFC107'; // أصفر
+            predictionProb.style.color = '#FFC107';
+            predictionItem.style.borderLeftColor = '#FFC107';
+          } else if (probPercent >= 1 && probPercent <= 39) {
+            // أحمر للقيم المنخفضة (1-39)
+            predictionClass.style.color = '#F44336'; // أحمر
+            predictionProb.style.color = '#F44336';
+            predictionItem.style.borderLeftColor = '#F44336';
+          } else {
+            // أبيض للصفر (0)
+            predictionClass.style.color = '#FFFFFF'; // أبيض
+            predictionProb.style.color = '#FFFFFF';
+            predictionItem.style.borderLeftColor = 'transparent';
+          }
         }
       }
     }
