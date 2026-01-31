@@ -1,95 +1,166 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>FARM 8OT Training</title>
+  <title>Teachable Machine Demo</title>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #e0f7fa;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      padding: 30px;
+      font-family: Arial, sans-serif;
+      background-image: url('FARBOT4.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
     }
-    h1 {
+    
+    .container {
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      max-width: 800px;
+      width: 90%;
       text-align: center;
-      color: #00796b;
-      margin-bottom: 10px;
+      backdrop-filter: blur(5px);
     }
-    #controls {
-      margin-bottom: 20px;
-      text-align: center;
+    
+    .title {
+      color: white;
+      margin-bottom: 30px;
+      font-size: 28px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     }
-    button {
-      padding: 12px 25px;
-      font-size: 18px;
+    
+    #startButton {
+      background: #4dccbd;
+      color: white;
       border: none;
-      border-radius: 8px;
-      background-color: #00796b;
-      color: #fff;
+      padding: 15px 50px;
+      font-size: 18px;
+      border-radius: 50px;
       cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-      transition: background 0.3s;
+      transition: all 0.3s ease;
+      margin-bottom: 30px;
+      font-weight: bold;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
-    button:hover {
-      background-color: #004d40;
+    
+    #startButton:hover {
+      background: #2a9d8f;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
     }
-    #container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-    }
-    #webcam-container {
-      border: 4px solid #004d40;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 0 20px rgba(0,0,0,0.2);
-    }
-    #label-container {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      width: 300px;
-    }
-    .label {
-      background: #ffffffcc;
+    
+    .webcam-container {
+      margin: 0 auto 30px;
+      width: 320px;
+      height: 320px;
+      background: rgba(0, 0, 0, 0.5);
       border-radius: 10px;
-      padding: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .label-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .prediction-item {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 8px;
+      color: white;
+      font-size: 18px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      font-weight: bold;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      border-left: 4px solid #4dccbd;
     }
-    .bar {
-      height: 12px;
-      border-radius: 6px;
-      background: #ff5722;
-      margin-left: 10px;
-      flex-grow: 1;
-      transition: width 0.3s, background 0.3s;
+    
+    .prediction-class {
+      font-weight: bold;
+      color: #4dccbd;
+    }
+    
+    .prediction-prob {
+      color: #e9c46a;
+      font-weight: bold;
+    }
+    
+    #webcam-placeholder {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 16px;
+    }
+    
+    .counter {
+      color: white;
+      font-size: 24px;
+      margin-top: 30px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      display: inline-block;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .counter-value {
+      font-size: 48px;
+      font-weight: bold;
+      color: #e9c46a;
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px rgba(233, 196, 106, 0.5);
     }
   </style>
 </head>
 <body>
-  <h1>FARM 8OT</h1>
-  <div id="controls">
-    <button onclick="init()">Start Training</button>
+  <div class="container">
+    <h1 class="title">Teachable Machine Model</h1>
+    
+    <button id="startButton" onclick="init()">Start</button>
+    
+    <div id="webcam-container" class="webcam-container">
+      <div id="webcam-placeholder">Camera will appear here after clicking Start</div>
+    </div>
+    
+    <div id="label-container" class="label-container">
+      <div class="prediction-item">
+        <span class="prediction-class">There is nothing</span>
+        <span class="prediction-prob">0.00</span>
+      </div>
+    </div>
+    
+    <div class="counter">
+      <div id="counterValue" class="counter-value">0</div>
+      <div>Accuracy Counter</div>
+    </div>
   </div>
 
-  <div id="container">
-    <div id="webcam-container"></div>
-    <div id="label-container"></div>
-  </div>
-
-  <script>
-    const URL = "https://farmbot1238.github.io/tomato/"; // رابط نموذجك على GitHub
+  <script type="text/javascript">
+    const URL = "https://farmbot1238.github.io/tomato/";
     let model, webcam, labelContainer, maxPredictions;
+    let counter = 0;
+    let counterInterval;
 
     async function init() {
+      const startButton = document.getElementById('startButton');
+      startButton.style.display = 'none';
+      
+      document.getElementById('webcam-placeholder').style.display = 'none';
+      
+      startCounter();
+
       const modelURL = URL + "model.json";
       const metadataURL = URL + "metadata.json";
 
@@ -97,25 +168,54 @@
         model = await tmImage.load(modelURL, metadataURL);
         maxPredictions = model.getTotalClasses();
 
-        webcam = new tmImage.Webcam(320, 320, true);
+        const flip = true;
+        webcam = new tmImage.Webcam(320, 320, flip);
         await webcam.setup();
         await webcam.play();
-        document.getElementById("webcam-container").appendChild(webcam.canvas);
+        window.requestAnimationFrame(loop);
 
-        labelContainer = document.getElementById("label-container");
-        labelContainer.innerHTML = "";
+        const webcamContainer = document.getElementById('webcam-container');
+        webcamContainer.appendChild(webcam.canvas);
+        
+        labelContainer = document.getElementById('label-container');
+        labelContainer.innerHTML = '';
+        
         for (let i = 0; i < maxPredictions; i++) {
-          const div = document.createElement("div");
-          div.className = "label";
-          div.innerHTML = `${model.getClassLabels()[i]} <div class="bar" id="bar${i}"></div>`;
-          labelContainer.appendChild(div);
+          const predictionDiv = document.createElement('div');
+          predictionDiv.className = 'prediction-item';
+          predictionDiv.innerHTML = `
+            <span class="prediction-class">Loading...</span>
+            <span class="prediction-prob">0.00</span>
+          `;
+          labelContainer.appendChild(predictionDiv);
         }
 
-        window.requestAnimationFrame(loop);
       } catch (err) {
         console.error("Error loading model:", err);
-        alert("Failed to load model. Check your GitHub Pages files.");
+        alert("Failed to load model. Make sure files exist on GitHub Pages.");
+        
+        startButton.style.display = 'block';
+        document.getElementById('webcam-placeholder').style.display = 'block';
+        stopCounter();
       }
+    }
+
+    function startCounter() {
+      counter = 0;
+      document.getElementById('counterValue').textContent = counter;
+      
+      counterInterval = setInterval(() => {
+        if (counter < 100) {
+          counter++;
+          document.getElementById('counterValue').textContent = counter;
+        } else {
+          clearInterval(counterInterval);
+        }
+      }, 100);
+    }
+    
+    function stopCounter() {
+      clearInterval(counterInterval);
     }
 
     async function loop() {
@@ -125,16 +225,20 @@
     }
 
     async function predict() {
+      if (!model) return;
+      
       const prediction = await model.predict(webcam.canvas);
+      
       for (let i = 0; i < maxPredictions; i++) {
-        const prob = prediction[i].probability;
-        const bar = document.getElementById(`bar${i}`);
-        bar.style.width = `${prob * 100}%`;
-
-        // تغيير لون حسب الاحتمال
-        if (prob > 0.75) bar.style.background = "#4caf50"; // أخضر
-        else if (prob > 0.4) bar.style.background = "#ffeb3b"; // أصفر
-        else bar.style.background = "#f44336"; // أحمر
+        const className = prediction[i].className === "لا شيء" ? "There is nothing" : prediction[i].className;
+        const probability = prediction[i].probability.toFixed(2);
+        
+        if (labelContainer.childNodes[i]) {
+          labelContainer.childNodes[i].innerHTML = `
+            <span class="prediction-class">${className}</span>
+            <span class="prediction-prob">${probability}</span>
+          `;
+        }
       }
     }
   </script>
