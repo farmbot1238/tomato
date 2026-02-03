@@ -89,7 +89,7 @@
     }
     
     .upload-container {
-      margin: 20px auto;
+      margin: 0 auto 30px;
       width: 320px;
       height: 320px;
       background: rgba(0, 0, 0, 0.5);
@@ -255,6 +255,7 @@
     let model, webcam, labelContainer, maxPredictions;
     let currentMode = 'none'; // 'webcam' أو 'upload' أو 'none'
     let uploadedImage = null;
+    let isModelLoaded = false;
 
     async function initWebcam() {
       if (currentMode === 'webcam') return;
@@ -267,20 +268,21 @@
       startButton.textContent = 'Camera Active';
       uploadButton.textContent = 'Upload Image for Detection';
       
-      document.getElementById('webcam-placeholder').style.display = 'none';
+      // إظهار حاوية الكاميرا وإخفاء حاوية الرفع
+      document.getElementById('webcam-container').style.display = 'flex';
       document.getElementById('upload-container').classList.remove('active');
+      document.getElementById('webcam-placeholder').style.display = 'none';
       
       // إخفاء الصورة المرفوعة إذا كانت موجودة
       document.getElementById('upload-preview').classList.remove('active');
       uploadedImage = null;
 
-      const modelURL = URL + "model.json";
-      const metadataURL = URL + "metadata.json";
+      // تحميل النموذج إذا لم يكن محملاً
+      if (!isModelLoaded) {
+        await loadModel();
+      }
 
       try {
-        model = await tmImage.load(modelURL, metadataURL);
-        maxPredictions = model.getTotalClasses();
-
         const flip = true;
         webcam = new tmImage.Webcam(320, 320, flip);
         await webcam.setup();
@@ -289,28 +291,18 @@
 
         const webcamContainer = document.getElementById('webcam-container');
         // إزالة الكاميرا القديمة إذا كانت موجودة
-        if (webcamContainer.children.length > 1) {
-          webcamContainer.removeChild(webcamContainer.lastChild);
+        const canvasElements = webcamContainer.getElementsByTagName('canvas');
+        if (canvasElements.length > 0) {
+          webcamContainer.removeChild(canvasElements[0]);
         }
         webcamContainer.appendChild(webcam.canvas);
         
         // إنشاء العناصر تلقائياً حسب عدد الفئات
-        labelContainer = document.getElementById('label-container');
-        labelContainer.innerHTML = '';
-        
-        for (let i = 0; i < maxPredictions; i++) {
-          const predictionDiv = document.createElement('div');
-          predictionDiv.className = 'prediction-item';
-          predictionDiv.innerHTML = `
-            <span class="prediction-class">Loading...</span>
-            <span class="prediction-prob">0.00</span>
-          `;
-          labelContainer.appendChild(predictionDiv);
-        }
+        createPredictionItems();
 
       } catch (err) {
-        console.error("Error loading model:", err);
-        alert("Failed to load model. Make sure your Teachable Machine model is published.");
+        console.error("Error starting webcam:", err);
+        alert("Failed to start webcam. Please check camera permissions.");
         
         startButton.textContent = 'Start Camera Detection';
         currentMode = 'none';
@@ -340,15 +332,16 @@
         webcam = null;
       }
       
+      // إخفاء حاوية الكاميرا وإظهار حاوية الرفع
       document.getElementById('webcam-container').style.display = 'none';
       document.getElementById('upload-container').classList.add('active');
+      document.getElementById('upload-placeholder').style.display = 'block';
       
       // إعادة تعيين النتائج
-      labelContainer = document.getElementById('label-container');
-      labelContainer.innerHTML = '';
+      createPredictionItems();
       
       // تحميل النموذج إذا لم يكن محملاً
-      if (!model) {
+      if (!isModelLoaded) {
         loadModel();
       }
     }
@@ -360,9 +353,28 @@
       try {
         model = await tmImage.load(modelURL, metadataURL);
         maxPredictions = model.getTotalClasses();
+        isModelLoaded = true;
+        console.log("Model loaded successfully with", maxPredictions, "classes");
       } catch (err) {
         console.error("Error loading model:", err);
-        alert("Failed to load model.");
+        alert("Failed to load model. Please check the model files on GitHub.");
+      }
+    }
+
+    function createPredictionItems() {
+      if (!isModelLoaded) return;
+      
+      labelContainer = document.getElementById('label-container');
+      labelContainer.innerHTML = '';
+      
+      for (let i = 0; i < maxPredictions; i++) {
+        const predictionDiv = document.createElement('div');
+        predictionDiv.className = 'prediction-item';
+        predictionDiv.innerHTML = `
+          <span class="prediction-class">Waiting...</span>
+          <span class="prediction-prob">0.00</span>
+        `;
+        labelContainer.appendChild(predictionDiv);
       }
     }
 
@@ -386,21 +398,19 @@
     }
 
     async function analyzeUploadedImage() {
-      if (!model || !uploadedImage) return;
-      
-      // إنشاء العناصر تلقائياً حسب عدد الفئات
-      labelContainer = document.getElementById('label-container');
-      labelContainer.innerHTML = '';
-      
-      for (let i = 0; i < maxPredictions; i++) {
-        const predictionDiv = document.createElement('div');
-        predictionDiv.className = 'prediction-item';
-        predictionDiv.innerHTML = `
-          <span class="prediction-class">Analyzing...</span>
-          <span class="prediction-prob">0.00</span>
-        `;
-        labelContainer.appendChild(predictionDiv);
+      if (!isModelLoaded || !uploadedImage) {
+        console.error("Model not loaded or no image uploaded");
+        return;
       }
+      
+      // انتظر حتى تحمل الصورة بالكامل
+      await new Promise(resolve => {
+        if (uploadedImage.complete) {
+          resolve();
+        } else {
+          uploadedImage.onload = resolve;
+        }
+      });
       
       // تحليل الصورة المرفوعة
       await predictFromImage(uploadedImage);
@@ -426,35 +436,49 @@
     }
 
     async function predictFromWebcam() {
-      if (!model || !webcam) return;
+      if (!isModelLoaded || !webcam) return;
       
-      const prediction = await model.predict(webcam.canvas);
-      updatePredictions(prediction);
+      try {
+        const prediction = await model.predict(webcam.canvas);
+        updatePredictions(prediction);
+      } catch (err) {
+        console.error("Error predicting from webcam:", err);
+      }
     }
 
     async function predictFromImage(imageElement) {
-      if (!model) return;
+      if (!isModelLoaded) {
+        console.error("Model not loaded");
+        return;
+      }
       
-      // إنشاء canvas مؤقت للصورة
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      canvas.width = 320;
-      canvas.height = 320;
-      
-      // رسم الصورة على canvas
-      ctx.drawImage(imageElement, 0, 0, 320, 320);
-      
-      // تحليل الصورة
-      const prediction = await model.predict(canvas);
-      updatePredictions(prediction);
+      try {
+        // إنشاء canvas مؤقت للصورة
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 224; // Teachable Machine تستخدم 224x224
+        canvas.height = 224;
+        
+        // رسم الصورة على canvas
+        ctx.drawImage(imageElement, 0, 0, 224, 224);
+        
+        // تحليل الصورة
+        const prediction = await model.predict(canvas);
+        updatePredictions(prediction);
+      } catch (err) {
+        console.error("Error predicting from image:", err);
+        alert("Error analyzing image. Please try another image.");
+      }
     }
 
     function updatePredictions(prediction) {
+      if (!prediction || !labelContainer) return;
+      
       for (let i = 0; i < maxPredictions; i++) {
         // أخذ الاسم كما هو من النموذج
         const className = prediction[i].className;
         const probability = prediction[i].probability;
-        const probPercent = Math.round(probability * 100); // تحويل لنسبة مئوية
+        const probPercent = Math.round(probability * 100);
         
         if (labelContainer.childNodes[i]) {
           const predictionClass = labelContainer.childNodes[i].querySelector('.prediction-class');
@@ -466,22 +490,18 @@
             
             // تطبيق الألوان حسب النسبة المئوية
             if (probPercent >= 70 && probPercent <= 100) {
-              // أخضر للقيم العالية (70-100)
               predictionClass.style.color = '#4CAF50';
               predictionProb.style.color = '#4CAF50';
               labelContainer.childNodes[i].style.borderLeftColor = '#4CAF50';
             } else if (probPercent >= 40 && probPercent <= 69) {
-              // أصفر للقيم المتوسطة (40-69)
               predictionClass.style.color = '#FFC107';
               predictionProb.style.color = '#FFC107';
               labelContainer.childNodes[i].style.borderLeftColor = '#FFC107';
             } else if (probPercent >= 1 && probPercent <= 39) {
-              // أحمر للقيم المنخفضة (1-39)
               predictionClass.style.color = '#F44336';
               predictionProb.style.color = '#F44336';
               labelContainer.childNodes[i].style.borderLeftColor = '#F44336';
             } else {
-              // أبيض للصفر (0)
               predictionClass.style.color = '#FFFFFF';
               predictionProb.style.color = '#FFFFFF';
               labelContainer.childNodes[i].style.borderLeftColor = 'transparent';
