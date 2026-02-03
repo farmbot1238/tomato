@@ -247,7 +247,7 @@
       padding: 20px;
     }
     
-    /* زر الرجوع للصفحة الرئيسية */
+    /* زر الرجوع للصفحة الرئيسية - FIXED */
     .back-home-button {
       position: absolute;
       top: 20px;
@@ -264,16 +264,35 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      text-decoration: none !important;
     }
     
     .back-home-button:hover {
       background: rgba(255, 255, 255, 0.2);
       transform: translateX(-3px);
+      text-decoration: none;
     }
     
     .back-home-button:before {
       content: "←";
       font-size: 18px;
+    }
+    
+    /* زر Back to Home داخل التطبيق */
+    .app-back-button {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 10px 20px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 16px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    
+    .app-back-button:hover {
+      background: rgba(255, 255, 255, 0.2);
     }
     
     .controls-container {
@@ -332,8 +351,8 @@
 </head>
 <body>
   <div class="container">
-    <!-- زر الرجوع للصفحة الرئيسية -->
-    <button class="back-home-button" onclick="goToHome()">Back to Home</button>
+    <!-- زر الرجوع للصفحة الرئيسية - FIXED -->
+    <a href="https://farmbot1238.github.io/Farm-bot-/" class="back-home-button">Back to Home</a>
     
     <h1 class="title">FarmBot Plant Detection</h1>
     
@@ -347,7 +366,7 @@
       <p style="color: white; margin-bottom: 20px;">Choose detection method:</p>
       <button class="action-button camera-button" onclick="chooseCamera()">Camera Detection</button>
       <button class="action-button upload-button" onclick="chooseUpload()">Upload Image</button>
-      <button class="back-button-choice" onclick="backToStart()">Back</button>
+      <button class="app-back-button" onclick="backToStart()">Back</button>
     </div>
     
     <!-- حاوية الكاميرا -->
@@ -373,6 +392,7 @@
       <button class="control-button" onclick="restartDetection()">Restart Detection</button>
       <button class="control-button" onclick="clearResult()">Clear Result</button>
       <button class="control-button" onclick="switchMode()">Switch Mode</button>
+      <button class="app-back-button" onclick="backToStart()">Back to Start</button>
     </div>
     
     <!-- نتيجة واحدة فقط -->
@@ -470,30 +490,7 @@
       updateModeIndicator('Image Upload Mode');
     }
 
-    // العودة للصفحة الرئيسية
-    function goToHome() {
-      // إيقاف الكاميرا إذا كانت شغالة
-      if (webcam) {
-        webcam.stop();
-        webcam = null;
-      }
-      
-      // إعادة تعيين كل شيء
-      document.getElementById('startScreen').style.display = 'flex';
-      document.getElementById('choiceScreen').style.display = 'none';
-      document.getElementById('webcam-container').classList.remove('active');
-      document.getElementById('upload-container').classList.remove('active');
-      document.getElementById('controlsContainer').style.display = 'none';
-      document.getElementById('upload-preview').classList.remove('active');
-      document.getElementById('upload-placeholder').style.display = 'block';
-      document.getElementById('singleResultContainer').classList.remove('active');
-      currentMode = 'start';
-      updateModeIndicator('');
-      
-      // إعادة تعيين حقل الرفع
-      document.getElementById('fileInput').value = '';
-      uploadedImage = null;
-    }
+    // العودة للصفحة الرئيسية - محذوفة لأنها الأن في الزر العلوي
 
     async function initCamera() {
       if (!isModelLoaded) {
