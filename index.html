@@ -39,24 +39,40 @@
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     }
     
-    #startButton {
+    .buttons-container {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .action-button {
       background: #4dccbd;
       color: white;
       border: none;
-      padding: 15px 50px;
-      font-size: 18px;
+      padding: 15px 30px;
+      font-size: 16px;
       border-radius: 50px;
       cursor: pointer;
       transition: all 0.3s ease;
-      margin-bottom: 30px;
       font-weight: bold;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      min-width: 180px;
     }
     
-    #startButton:hover {
+    .action-button:hover {
       background: #2a9d8f;
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+    
+    .upload-button {
+      background: #FF9800;
+    }
+    
+    .upload-button:hover {
+      background: #F57C00;
     }
     
     .webcam-container {
@@ -70,6 +86,54 @@
       align-items: center;
       overflow: hidden;
       border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .upload-container {
+      margin: 20px auto;
+      width: 320px;
+      height: 320px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      border: 2px dashed rgba(255, 255, 255, 0.3);
+      position: relative;
+      display: none;
+    }
+    
+    .upload-container.active {
+      display: flex;
+    }
+    
+    .upload-preview {
+      max-width: 100%;
+      max-height: 100%;
+      display: none;
+    }
+    
+    .upload-preview.active {
+      display: block;
+    }
+    
+    #fileInput {
+      display: none;
+    }
+    
+    .file-label {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      padding: 15px 30px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      border: 2px dashed rgba(255, 255, 255, 0.3);
+    }
+    
+    .file-label:hover {
+      background: rgba(255, 255, 255, 0.2);
     }
     
     .label-container {
@@ -106,24 +170,11 @@
       font-size: 16px;
     }
     
-    .counter {
-      color: white;
-      font-size: 24px;
-      margin-top: 30px;
+    .upload-placeholder {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 16px;
+      text-align: center;
       padding: 20px;
-      background: rgba(0, 0, 0, 0.5);
-      border-radius: 10px;
-      display: inline-block;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.3s ease;
-    }
-    
-    .counter-value {
-      font-size: 48px;
-      font-weight: bold;
-      margin-bottom: 10px;
-      text-shadow: 0 0 10px currentColor;
-      transition: all 0.3s ease;
     }
     
     /* زر الرجوع */
@@ -154,6 +205,13 @@
       content: "←";
       font-size: 18px;
     }
+    
+    .mode-indicator {
+      color: #4dccbd;
+      font-size: 14px;
+      margin-top: 10px;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
@@ -161,40 +219,60 @@
     <!-- زر الرجوع -->
     <a href="https://farmbot1238.github.io/Farm-bot-/" class="back-button">Back</a>
     
-    <h1 class="title">Teachable Machine Model</h1>
+    <h1 class="title">FarmBot Plant Detection</h1>
     
-    <button id="startButton" onclick="init()">Start</button>
+    <div class="buttons-container">
+      <button id="startButton" class="action-button" onclick="initWebcam()">Start Camera Detection</button>
+      <button id="uploadButton" class="action-button upload-button" onclick="toggleUpload()">Upload Image for Detection</button>
+    </div>
     
+    <!-- حاوية الكاميرا -->
     <div id="webcam-container" class="webcam-container">
       <div id="webcam-placeholder">Camera will appear here after clicking Start</div>
     </div>
     
-    <div id="label-container" class="label-container">
-      <div class="prediction-item">
-        <span class="prediction-class">There is nothing</span>
-        <span class="prediction-prob">0.00</span>
+    <!-- حاوية رفع الصورة -->
+    <div id="upload-container" class="upload-container">
+      <div id="upload-placeholder" class="upload-placeholder">
+        <label for="fileInput" class="file-label">
+          Click to upload image
+        </label>
+        <input type="file" id="fileInput" accept="image/*" onchange="previewImage(event)">
       </div>
+      <img id="upload-preview" class="upload-preview" alt="Preview">
     </div>
     
-    <div class="counter">
-      <div id="counterValue" class="counter-value">0</div>
-      <div>Accuracy Counter</div>
+    <div id="mode-indicator" class="mode-indicator"></div>
+    
+    <div id="label-container" class="label-container">
+      <!-- ستنشئها JavaScript تلقائياً -->
     </div>
   </div>
 
   <script type="text/javascript">
+    // الرابط القديم
     const URL = "https://farmbot1238.github.io/tomato/";
     let model, webcam, labelContainer, maxPredictions;
-    let counter = 0;
-    let counterInterval;
+    let currentMode = 'none'; // 'webcam' أو 'upload' أو 'none'
+    let uploadedImage = null;
 
-    async function init() {
+    async function initWebcam() {
+      if (currentMode === 'webcam') return;
+      
+      currentMode = 'webcam';
+      updateModeIndicator();
+      
       const startButton = document.getElementById('startButton');
-      startButton.style.display = 'none';
+      const uploadButton = document.getElementById('uploadButton');
+      startButton.textContent = 'Camera Active';
+      uploadButton.textContent = 'Upload Image for Detection';
       
       document.getElementById('webcam-placeholder').style.display = 'none';
+      document.getElementById('upload-container').classList.remove('active');
       
-      startCounter();
+      // إخفاء الصورة المرفوعة إذا كانت موجودة
+      document.getElementById('upload-preview').classList.remove('active');
+      uploadedImage = null;
 
       const modelURL = URL + "model.json";
       const metadataURL = URL + "metadata.json";
@@ -210,8 +288,13 @@
         window.requestAnimationFrame(loop);
 
         const webcamContainer = document.getElementById('webcam-container');
+        // إزالة الكاميرا القديمة إذا كانت موجودة
+        if (webcamContainer.children.length > 1) {
+          webcamContainer.removeChild(webcamContainer.lastChild);
+        }
         webcamContainer.appendChild(webcam.canvas);
         
+        // إنشاء العناصر تلقائياً حسب عدد الفئات
         labelContainer = document.getElementById('label-container');
         labelContainer.innerHTML = '';
         
@@ -227,110 +310,191 @@
 
       } catch (err) {
         console.error("Error loading model:", err);
-        alert("Failed to load model. Make sure files exist on GitHub Pages.");
+        alert("Failed to load model. Make sure your Teachable Machine model is published.");
         
-        startButton.style.display = 'block';
+        startButton.textContent = 'Start Camera Detection';
+        currentMode = 'none';
+        updateModeIndicator();
         document.getElementById('webcam-placeholder').style.display = 'block';
-        stopCounter();
       }
     }
 
-    function startCounter() {
-      counter = 0;
-      document.getElementById('counterValue').textContent = counter;
-      updateCounterColor();
+    function toggleUpload() {
+      if (currentMode === 'upload') {
+        // إذا كان في وضع الرفع بالفعل، ارجع للكاميرا
+        initWebcam();
+        return;
+      }
       
-      counterInterval = setInterval(() => {
-        if (counter < 100) {
-          counter++;
-          document.getElementById('counterValue').textContent = counter;
-          updateCounterColor();
-        } else {
-          clearInterval(counterInterval);
-        }
-      }, 100);
-    }
-    
-    function stopCounter() {
-      clearInterval(counterInterval);
-    }
-    
-    function updateCounterColor() {
-      const counterElement = document.getElementById('counterValue');
+      currentMode = 'upload';
+      updateModeIndicator();
       
-      // تحديث لون العداد حسب القيمة
-      if (counter >= 70 && counter <= 100) {
-        counterElement.style.color = '#4CAF50'; // أخضر
-        counterElement.style.textShadow = '0 0 10px rgba(76, 175, 80, 0.7)';
-      } else if (counter >= 40 && counter <= 69) {
-        counterElement.style.color = '#FFC107'; // أصفر
-        counterElement.style.textShadow = '0 0 10px rgba(255, 193, 7, 0.7)';
-      } else if (counter >= 1 && counter <= 39) {
-        counterElement.style.color = '#F44336'; // أحمر
-        counterElement.style.textShadow = '0 0 10px rgba(244, 67, 54, 0.7)';
+      const startButton = document.getElementById('startButton');
+      const uploadButton = document.getElementById('uploadButton');
+      startButton.textContent = 'Start Camera Detection';
+      uploadButton.textContent = 'Upload Active';
+      
+      // إيقاف الكاميرا إذا كانت شغالة
+      if (webcam) {
+        webcam.stop();
+        webcam = null;
+      }
+      
+      document.getElementById('webcam-container').style.display = 'none';
+      document.getElementById('upload-container').classList.add('active');
+      
+      // إعادة تعيين النتائج
+      labelContainer = document.getElementById('label-container');
+      labelContainer.innerHTML = '';
+      
+      // تحميل النموذج إذا لم يكن محملاً
+      if (!model) {
+        loadModel();
+      }
+    }
+
+    async function loadModel() {
+      const modelURL = URL + "model.json";
+      const metadataURL = URL + "metadata.json";
+
+      try {
+        model = await tmImage.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
+      } catch (err) {
+        console.error("Error loading model:", err);
+        alert("Failed to load model.");
+      }
+    }
+
+    function previewImage(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const preview = document.getElementById('upload-preview');
+        preview.src = e.target.result;
+        preview.classList.add('active');
+        uploadedImage = preview;
+        
+        document.getElementById('upload-placeholder').style.display = 'none';
+        
+        // تحليل الصورة المرفوعة
+        analyzeUploadedImage();
+      }
+      reader.readAsDataURL(file);
+    }
+
+    async function analyzeUploadedImage() {
+      if (!model || !uploadedImage) return;
+      
+      // إنشاء العناصر تلقائياً حسب عدد الفئات
+      labelContainer = document.getElementById('label-container');
+      labelContainer.innerHTML = '';
+      
+      for (let i = 0; i < maxPredictions; i++) {
+        const predictionDiv = document.createElement('div');
+        predictionDiv.className = 'prediction-item';
+        predictionDiv.innerHTML = `
+          <span class="prediction-class">Analyzing...</span>
+          <span class="prediction-prob">0.00</span>
+        `;
+        labelContainer.appendChild(predictionDiv);
+      }
+      
+      // تحليل الصورة المرفوعة
+      await predictFromImage(uploadedImage);
+    }
+
+    function updateModeIndicator() {
+      const indicator = document.getElementById('mode-indicator');
+      if (currentMode === 'webcam') {
+        indicator.textContent = 'Mode: Live Camera Detection';
+      } else if (currentMode === 'upload') {
+        indicator.textContent = 'Mode: Image Upload Detection';
       } else {
-        counterElement.style.color = '#FFFFFF'; // أبيض
-        counterElement.style.textShadow = '0 0 10px rgba(255, 255, 255, 0.3)';
+        indicator.textContent = '';
       }
     }
 
     async function loop() {
-      webcam.update();
-      await predict();
-      window.requestAnimationFrame(loop);
+      if (currentMode === 'webcam' && webcam) {
+        webcam.update();
+        await predictFromWebcam();
+        window.requestAnimationFrame(loop);
+      }
     }
 
-    async function predict() {
-      if (!model) return;
+    async function predictFromWebcam() {
+      if (!model || !webcam) return;
       
       const prediction = await model.predict(webcam.canvas);
+      updatePredictions(prediction);
+    }
+
+    async function predictFromImage(imageElement) {
+      if (!model) return;
       
+      // إنشاء canvas مؤقت للصورة
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = 320;
+      canvas.height = 320;
+      
+      // رسم الصورة على canvas
+      ctx.drawImage(imageElement, 0, 0, 320, 320);
+      
+      // تحليل الصورة
+      const prediction = await model.predict(canvas);
+      updatePredictions(prediction);
+    }
+
+    function updatePredictions(prediction) {
       for (let i = 0; i < maxPredictions; i++) {
-        let className = prediction[i].className;
+        // أخذ الاسم كما هو من النموذج
+        const className = prediction[i].className;
         const probability = prediction[i].probability;
         const probPercent = Math.round(probability * 100); // تحويل لنسبة مئوية
         
-        // تغيير النص إذا كان "لا شيء"
-        if (className === "لا شيء") {
-          className = "There is nothing";
-        }
-        
         if (labelContainer.childNodes[i]) {
-          labelContainer.childNodes[i].innerHTML = `
-            <span class="prediction-class">${className}</span>
-            <span class="prediction-prob">${probability.toFixed(2)}</span>
-          `;
-          
-          // تحديد اللون حسب نسبة الاحتمال (0-100)
           const predictionClass = labelContainer.childNodes[i].querySelector('.prediction-class');
           const predictionProb = labelContainer.childNodes[i].querySelector('.prediction-prob');
-          const predictionItem = labelContainer.childNodes[i];
           
-          // تطبيق الألوان حسب النسبة المئوية
-          if (probPercent >= 70 && probPercent <= 100) {
-            // أخضر للقيم العالية (70-100)
-            predictionClass.style.color = '#4CAF50'; // أخضر
-            predictionProb.style.color = '#4CAF50';
-            predictionItem.style.borderLeftColor = '#4CAF50';
-          } else if (probPercent >= 40 && probPercent <= 69) {
-            // أصفر للقيم المتوسطة (40-69)
-            predictionClass.style.color = '#FFC107'; // أصفر
-            predictionProb.style.color = '#FFC107';
-            predictionItem.style.borderLeftColor = '#FFC107';
-          } else if (probPercent >= 1 && probPercent <= 39) {
-            // أحمر للقيم المنخفضة (1-39)
-            predictionClass.style.color = '#F44336'; // أحمر
-            predictionProb.style.color = '#F44336';
-            predictionItem.style.borderLeftColor = '#F44336';
-          } else {
-            // أبيض للصفر (0)
-            predictionClass.style.color = '#FFFFFF'; // أبيض
-            predictionProb.style.color = '#FFFFFF';
-            predictionItem.style.borderLeftColor = 'transparent';
+          if (predictionClass && predictionProb) {
+            predictionClass.textContent = className;
+            predictionProb.textContent = probability.toFixed(2);
+            
+            // تطبيق الألوان حسب النسبة المئوية
+            if (probPercent >= 70 && probPercent <= 100) {
+              // أخضر للقيم العالية (70-100)
+              predictionClass.style.color = '#4CAF50';
+              predictionProb.style.color = '#4CAF50';
+              labelContainer.childNodes[i].style.borderLeftColor = '#4CAF50';
+            } else if (probPercent >= 40 && probPercent <= 69) {
+              // أصفر للقيم المتوسطة (40-69)
+              predictionClass.style.color = '#FFC107';
+              predictionProb.style.color = '#FFC107';
+              labelContainer.childNodes[i].style.borderLeftColor = '#FFC107';
+            } else if (probPercent >= 1 && probPercent <= 39) {
+              // أحمر للقيم المنخفضة (1-39)
+              predictionClass.style.color = '#F44336';
+              predictionProb.style.color = '#F44336';
+              labelContainer.childNodes[i].style.borderLeftColor = '#F44336';
+            } else {
+              // أبيض للصفر (0)
+              predictionClass.style.color = '#FFFFFF';
+              predictionProb.style.color = '#FFFFFF';
+              labelContainer.childNodes[i].style.borderLeftColor = 'transparent';
+            }
           }
         }
       }
     }
+
+    // تحميل النموذج عند بدء التحميل
+    window.onload = function() {
+      loadModel();
+    };
   </script>
 </body>
 </html>
