@@ -113,6 +113,23 @@
       background: #F57C00;
     }
     
+    .solution-button {
+      background: #9C27B0;
+      margin-top: 15px;
+      animation: pulse 2s infinite;
+    }
+    
+    .solution-button:hover {
+      background: #7B1FA2;
+      transform: scale(1.05);
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(156, 39, 176, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(156, 39, 176, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(156, 39, 176, 0); }
+    }
+    
     .back-button-choice {
       background: rgba(255, 255, 255, 0.1);
       color: white;
@@ -276,6 +293,134 @@
       background: rgba(244, 67, 54, 0.1);
     }
     
+    /* نافذة حل المشكلة */
+    .solution-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .solution-modal.active {
+      display: flex;
+    }
+    
+    .solution-content {
+      background: rgba(0, 0, 0, 0.9);
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      border: 2px solid #9C27B0;
+      box-shadow: 0 0 30px rgba(156, 39, 176, 0.5);
+    }
+    
+    .solution-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .solution-title {
+      color: #9C27B0;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    
+    .close-button {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .close-button:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .solution-body {
+      color: white;
+      line-height: 1.6;
+    }
+    
+    .solution-section {
+      margin-bottom: 25px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      border-radius: 10px;
+      border-left: 4px solid #4CAF50;
+    }
+    
+    .solution-section.disease {
+      border-left-color: #F44336;
+      background: rgba(244, 67, 54, 0.1);
+    }
+    
+    .solution-section.treatment {
+      border-left-color: #2196F3;
+      background: rgba(33, 150, 243, 0.1);
+    }
+    
+    .solution-section.prevention {
+      border-left-color: #FFC107;
+      background: rgba(255, 193, 7, 0.1);
+    }
+    
+    .section-title {
+      color: #4dccbd;
+      font-size: 18px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .solution-list {
+      list-style-type: none;
+      padding-left: 0;
+    }
+    
+    .solution-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .solution-list li:before {
+      content: "✅";
+      color: #4CAF50;
+    }
+    
+    .solution-list.danger li:before {
+      content: "⚠️";
+      color: #FFC107;
+    }
+    
+    .plant-emoji {
+      font-size: 24px;
+      margin-right: 10px;
+    }
+    
     #webcam-placeholder {
       color: rgba(255, 255, 255, 0.5);
       font-size: 16px;
@@ -400,7 +545,8 @@
       <p style="color: rgba(255,255,255,0.6); max-width: 500px; line-height: 1.6;">
         This system will:<br>
         1️⃣ <strong>Detect plant type</strong> (Tomato, Potato, Pepper)<br>
-        2️⃣ <strong>Check plant health</strong> (Healthy or Diseased)
+        2️⃣ <strong>Check plant health</strong> (Healthy or Diseased)<br>
+        3️⃣ <strong>Provide solutions</strong> if plant is diseased
       </p>
     </div>
     
@@ -457,9 +603,29 @@
         </div>
       </div>
       
+      <!-- زر حل المشكلة (يظهر فقط إذا النبتة مريضة) -->
+      <div id="solutionButtonContainer" style="display: none; margin-top: 20px;">
+        <button class="action-button solution-button" onclick="showSolution()">
+          🔧 Show Treatment Solutions
+        </button>
+      </div>
+      
       <!-- إشعار النتيجة -->
       <div id="notification" class="notification">
         <div id="notificationText">Analysis in progress...</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- نافذة حل المشكلة -->
+  <div id="solutionModal" class="solution-modal">
+    <div class="solution-content">
+      <div class="solution-header">
+        <h2 class="solution-title" id="solutionPlantTitle">Plant Treatment Guide</h2>
+        <button class="close-button" onclick="closeSolution()">✕</button>
+      </div>
+      <div class="solution-body" id="solutionContent">
+        <!-- سيتم تعبئة المحتوى هنا -->
       </div>
     </div>
   </div>
@@ -472,7 +638,7 @@
     // 1. نموذج التعرف على النبتة
     const PLANT_MODEL_URL = "https://farmbot1238.github.io/tomato/";
     
-    // 2. نموذج فحص الصحة (الرابط الجديد)
+    // 2. نموذج فحص الصحة
     const HEALTH_MODEL_URL = "https://teachablemachine.withgoogle.com/models/cFNqCcqIp/";
     
     // متغيرات النظام
@@ -482,6 +648,81 @@
     let plantModelLoaded = false;
     let healthModelLoaded = false;
     let currentDetection = null;
+    let currentPlantType = '';
+    let isPlantDiseased = false;
+    
+    // قواعد البيانات لحلول الأمراض
+    const diseaseSolutions = {
+      'tomato': {
+        title: "🍅 Tomato Disease Solutions",
+        commonDiseases: [
+          "Early Blight",
+          "Late Blight", 
+          "Bacterial Spot",
+          "Tomato Mosaic Virus"
+        ],
+        treatments: [
+          "Remove affected leaves immediately",
+          "Apply copper-based fungicide",
+          "Improve air circulation around plants",
+          "Water at soil level, not leaves",
+          "Rotate crops annually"
+        ],
+        prevention: [
+          "Use disease-resistant varieties",
+          "Space plants properly (24-36 inches)",
+          "Avoid overhead watering",
+          "Apply mulch around plants",
+          "Clean garden tools regularly"
+        ]
+      },
+      'potato': {
+        title: "🥔 Potato Disease Solutions",
+        commonDiseases: [
+          "Potato Blight",
+          "Common Scab",
+          "Blackleg",
+          "Potato Virus Y"
+        ],
+        treatments: [
+          "Remove and destroy infected plants",
+          "Apply approved fungicides",
+          "Improve soil drainage",
+          "Avoid planting in infected soil for 3-4 years",
+          "Use certified disease-free seed potatoes"
+        ],
+        prevention: [
+          "Practice crop rotation",
+          "Plant in well-drained soil",
+          "Harvest potatoes when mature",
+          "Store in cool, dry conditions",
+          "Remove volunteer potatoes"
+        ]
+      },
+      'pepper': {
+        title: "🌶️ Pepper Disease Solutions",
+        commonDiseases: [
+          "Bacterial Leaf Spot",
+          "Phytophthora Blight",
+          "Powdery Mildew",
+          "Blossom End Rot"
+        ],
+        treatments: [
+          "Remove infected plants immediately",
+          "Apply appropriate fungicides",
+          "Maintain consistent soil moisture",
+          "Apply calcium nitrate for blossom end rot",
+          "Improve air circulation"
+        ],
+        prevention: [
+          "Water early in the day",
+          "Use drip irrigation",
+          "Space plants 18-24 inches apart",
+          "Avoid working with wet plants",
+          "Use mulch to prevent soil splash"
+        ]
+      }
+    };
     
     // تحميل النماذج عند بدء التحميل
     window.onload = function() {
@@ -536,6 +777,7 @@
       document.getElementById('upload-container').classList.remove('active');
       document.getElementById('controlsContainer').style.display = 'none';
       document.getElementById('resultsContainer').classList.remove('active');
+      document.getElementById('solutionButtonContainer').style.display = 'none';
       currentMode = 'start';
       updateStep(1);
       updateStatus("");
@@ -554,6 +796,7 @@
       document.getElementById('upload-container').classList.remove('active');
       document.getElementById('controlsContainer').style.display = 'flex';
       document.getElementById('resultsContainer').classList.add('active');
+      document.getElementById('solutionButtonContainer').style.display = 'none';
       currentMode = 'camera';
       updateStep(3);
       updateStatus("📷 Camera mode - Detecting plant...");
@@ -568,6 +811,7 @@
       document.getElementById('webcam-container').classList.remove('active');
       document.getElementById('controlsContainer').style.display = 'flex';
       document.getElementById('resultsContainer').classList.add('active');
+      document.getElementById('solutionButtonContainer').style.display = 'none';
       currentMode = 'upload';
       updateStep(3);
       updateStatus("📁 Upload mode - Ready for image");
@@ -735,6 +979,7 @@
         // إذا كان "لا شيء" أو احتمالية منخفضة
         updateHealthResult("No plant detected", 0);
         updateNotification("🌫️ No plant detected in the image.", "warning");
+        document.getElementById('solutionButtonContainer').style.display = 'none';
       }
     }
     
@@ -760,13 +1005,21 @@
         // تحديث نتيجة فحص الصحة
         updateHealthResult(bestHealthPrediction.className, bestHealthPrediction.probability);
         
+        // التحقق إذا كانت النبتة مريضة
+        currentPlantType = plantType.toLowerCase();
+        isPlantDiseased = bestHealthPrediction.className.toLowerCase().includes('diseased');
+        
         // تحديث الإشعار المناسب
         if (bestHealthPrediction.className.toLowerCase().includes('healthy')) {
           updateNotification(`✅ ${plantType} plant is healthy! Good condition.`, "success");
-        } else if (bestHealthPrediction.className.toLowerCase().includes('diseased')) {
+          document.getElementById('solutionButtonContainer').style.display = 'none';
+        } else if (isPlantDiseased) {
           updateNotification(`⚠️ ${plantType} plant shows signs of disease! Needs attention.`, "danger");
+          // إظهار زر حل المشكلة فقط إذا كانت النبتة مريضة
+          document.getElementById('solutionButtonContainer').style.display = 'block';
         } else {
           updateNotification(`🔍 ${plantType} plant health: ${bestHealthPrediction.className}`, "info");
+          document.getElementById('solutionButtonContainer').style.display = 'none';
         }
         
         updateStatus("✅ Analysis complete!");
@@ -775,6 +1028,7 @@
         console.error("❌ Error checking plant health:", err);
         updateHealthResult("Health check failed", 0);
         updateNotification("❌ Could not check plant health.", "warning");
+        document.getElementById('solutionButtonContainer').style.display = 'none';
       }
     }
     
@@ -824,6 +1078,71 @@
       } else {
         healthIcon.textContent = "🩺";
       }
+    }
+    
+    // عرض حل المشكلة
+    function showSolution() {
+      if (!currentPlantType || !isPlantDiseased) return;
+      
+      // تحديد نوع النبتة الحالية
+      let plantKey = '';
+      if (currentPlantType.includes('tomato')) plantKey = 'tomato';
+      else if (currentPlantType.includes('potato')) plantKey = 'potato';
+      else if (currentPlantType.includes('pepper')) plantKey = 'pepper';
+      
+      if (!diseaseSolutions[plantKey]) {
+        alert("No treatment information available for this plant.");
+        return;
+      }
+      
+      const solution = diseaseSolutions[plantKey];
+      
+      // تحديث عنوان النافذة
+      document.getElementById('solutionPlantTitle').textContent = solution.title;
+      
+      // بناء محتوى الحلول
+      let content = `
+        <div class="solution-section disease">
+          <div class="section-title">🦠 Common Diseases</div>
+          <ul class="solution-list danger">
+            ${solution.commonDiseases.map(disease => `<li>${disease}</li>`).join('')}
+          </ul>
+        </div>
+        
+        <div class="solution-section treatment">
+          <div class="section-title">💊 Immediate Treatments</div>
+          <ul class="solution-list">
+            ${solution.treatments.map(treatment => `<li>${treatment}</li>`).join('')}
+          </ul>
+        </div>
+        
+        <div class="solution-section prevention">
+          <div class="section-title">🛡️ Prevention Tips</div>
+          <ul class="solution-list">
+            ${solution.prevention.map(prevent => `<li>${prevent}</li>`).join('')}
+          </ul>
+        </div>
+        
+        <div style="margin-top: 20px; padding: 15px; background: rgba(156, 39, 176, 0.1); border-radius: 10px; border-left: 4px solid #9C27B0;">
+          <div class="section-title">📞 Professional Help</div>
+          <p style="margin: 10px 0;">If problems persist, consult with:</p>
+          <ul class="solution-list">
+            <li>Local agricultural extension office</li>
+            <li>Certified plant pathologist</li>
+            <li>Professional horticulturist</li>
+          </ul>
+        </div>
+      `;
+      
+      document.getElementById('solutionContent').innerHTML = content;
+      
+      // عرض النافذة
+      document.getElementById('solutionModal').classList.add('active');
+    }
+    
+    // إغلاق نافذة الحلول
+    function closeSolution() {
+      document.getElementById('solutionModal').classList.remove('active');
     }
     
     function updateNotification(message, type = 'info') {
@@ -877,6 +1196,7 @@
         updatePlantResult("Waiting for image...", 0);
         updateHealthResult("Will check after detection", 0);
         updateNotification("Upload a plant image to analyze", "info");
+        document.getElementById('solutionButtonContainer').style.display = 'none';
       }
     }
     
@@ -885,6 +1205,7 @@
       updateHealthResult("Checking...", 0);
       updateNotification("Cleared results", "info");
       updateStatus("");
+      document.getElementById('solutionButtonContainer').style.display = 'none';
     }
     
     function switchMode() {
@@ -899,9 +1220,16 @@
       }
     }
     
+    // إغلاق النافذة عند النقر خارجها
+    document.getElementById('solutionModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeSolution();
+      }
+    });
+    
     // معلومات عن النماذج
     console.log("====================================");
-    console.log("🌿 Plant Health Detection System");
+    console.log("🌿 Plant Health Detection System with Solutions");
     console.log("====================================");
     console.log("Plant Model URL:", PLANT_MODEL_URL);
     console.log("Health Model URL:", HEALTH_MODEL_URL);
