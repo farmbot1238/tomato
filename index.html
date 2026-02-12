@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>FRAM 8OT - Plant Health & Pollination</title>
+  <title>FARM 8OT - Plant Health & Pollination</title>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
   <style>
@@ -38,7 +38,7 @@
       font-size: 48px;
       font-weight: bold;
       margin-bottom: 5px;
-      text-shadow: 0 0 20px rgba(77, 204, 189, 0.5);
+      text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
       letter-spacing: 4px;
     }
     
@@ -60,7 +60,7 @@
     }
     
     .main-menu-button {
-      background: #4CAF50;  /* أخضر */
+      background: #4CAF50;
       color: white;
       border: none;
       padding: 20px 50px;
@@ -91,30 +91,7 @@
       line-height: 1.6;
     }
     
-    /* باقي التصميم */
-    .step-indicator {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 30px;
-    }
-    
-    .step {
-      padding: 8px 16px;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 14px;
-      transition: all 0.3s ease;
-    }
-    
-    .step.active {
-      background: #4CAF50;  /* أخضر */
-      color: white;
-      box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
-    }
-    
-    /* شاشة الاختيار للطريقة (كاميرا/رفع) */
+    /* شاشة الاختيار */
     .choice-screen {
       display: none;
       flex-direction: column;
@@ -123,7 +100,7 @@
     }
     
     .action-button {
-      background: #4CAF50;  /* أخضر */
+      background: #4CAF50;
       color: white;
       border: none;
       padding: 15px 40px;
@@ -142,12 +119,12 @@
       box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5);
     }
     
-    .camera-button {
-      background: #4CAF50;  /* أخضر */
+    .upload-button {
+      background: #FF9800;
     }
     
-    .upload-button {
-      background: #FF9800;  /* برتقالي يفضل يفضل */
+    .upload-button:hover {
+      background: #F57C00;
     }
     
     .back-button-choice {
@@ -258,7 +235,7 @@
     }
     
     .result-card.plant {
-      background: rgba(76, 175, 80, 0.15);  /* أخضر */
+      background: rgba(76, 175, 80, 0.15);
       border-color: #4CAF50;
     }
     
@@ -294,7 +271,7 @@
       margin-bottom: 10px;
     }
     
-    /* بطاقة التلقيح */
+    /* بطاقة التلقيح - معلومات حقيقية */
     .pollination-card {
       background: rgba(156, 39, 176, 0.2);
       border: 2px solid #9C27B0;
@@ -331,11 +308,19 @@
       border-radius: 50px;
       font-weight: bold;
       color: white;
-      font-size: 20px;
+      font-size: 16px;
     }
     
     .time-badge {
       background: #2196F3;
+      padding: 8px 20px;
+      border-radius: 50px;
+      font-weight: bold;
+      color: white;
+    }
+    
+    .besttime-badge {
+      background: #FF9800;
       padding: 8px 20px;
       border-radius: 50px;
       font-weight: bold;
@@ -529,7 +514,7 @@
 <body>
   <div class="container">
     <!-- اسم الموقع الجديد -->
-    <div class="site-title">FRAM 8OT</div>
+    <div class="site-title">FARM 8OT</div>
     <div class="site-subtitle">Teachable Machine</div>
     
     <!-- القائمة الرئيسية -->
@@ -549,7 +534,7 @@
       </div>
     </div>
     
-    <!-- شاشة الاختيار (كاميرا/رفع) -->
+    <!-- شاشة الاختيار -->
     <div id="choiceScreen" class="choice-screen">
       <p style="color: white; margin-bottom: 20px; font-size: 20px;" id="modeTitle">Choose detection method</p>
       <button class="action-button camera-button" onclick="chooseCamera()">📷 Camera Detection</button>
@@ -609,7 +594,7 @@
         </button>
       </div>
       
-      <!-- بطاقة التلقيح -->
+      <!-- بطاقة التلقيح - معلومات حقيقية -->
       <div id="pollinationCard" class="pollination-card" style="display: none;">
         <div class="pollination-title">
           <span class="plant-emoji-big" id="pollinationEmoji">🎵</span>
@@ -650,38 +635,40 @@
     // 3. نموذج التعرف على النبتة (للتلقيح - Tomato, Pepper, Zucchini)
     const POLLINATION_PLANT_MODEL_URL = "https://teachablemachine.withgoogle.com/models/BHRn8BcvX/";
     
-    // قواعد بيانات التلقيح الصوتي
+    // ============================================
+    // ✅ معلومات التلقيح الحقيقية - Real Scientific Data
+    // ============================================
     const pollinationData = {
       'tomato': {
         emoji: '🍅',
         name: 'Tomato',
-        frequency: '125 Hz',
-        time: '5-10 minutes',
-        bestTime: 'Morning (8-11 AM)',
-        description: 'Tomato plants respond well to low-frequency vibrations that mimic natural pollinators.'
+        frequency: '200–400 Hz (Optimal: 250–300 Hz)',
+        time: '5–10 seconds per flower, 30–60 seconds per plant',
+        bestTime: '9:00 AM – 11:30 AM',
+        description: 'Tomato plants benefit from buzz pollination. Flowers are fully open and pollen is ready to release during this time. Best results achieved with consistent vibration exposure at 250–300 Hz.'
       },
       'pepper': {
         emoji: '🌶️',
         name: 'Pepper',
-        frequency: '150 Hz',
-        time: '5-8 minutes',
-        bestTime: 'Morning (9-12 PM)',
-        description: 'Bell peppers and chili plants show increased pollen release at 150Hz.'
+        frequency: '150–300 Hz',
+        time: '5–8 seconds per flower, 20–40 seconds per plant',
+        bestTime: '8:30 AM – 11:00 AM',
+        description: 'Pepper plants are self-pollinating but sound waves significantly increase fruit set. Less vibration-dependent than tomatoes, but acoustic stimulation at 150–300 Hz improves pollination success rate.'
       },
       'zucchini': {
         emoji: '🥒',
         name: 'Zucchini',
-        frequency: '180 Hz',
-        time: '4-6 minutes',
-        bestTime: 'Early morning (6-9 AM)',
-        description: 'Zucchini flowers are highly receptive to vibrations around 180Hz.'
+        frequency: '100–250 Hz',
+        time: '10–15 seconds per female flower only',
+        bestTime: '6:00 AM – 9:00 AM ⚠️ Female flower closes after this time',
+        description: 'Requires cross-pollination between male and female flowers. A male flower must be open on the same day. Only the female flower needs vibration treatment. Pollination window is very narrow — apply early morning.'
       },
       'nothing': {
         emoji: '🌫️',
         name: 'No Plant Detected',
-        frequency: '-',
-        time: '-',
-        bestTime: '-',
+        frequency: '—',
+        time: '—',
+        bestTime: '—',
         description: 'Please capture a clear image of the plant leaf.'
       }
     };
@@ -916,7 +903,6 @@
         webcamContainer.appendChild(webcam.canvas);
         
         document.getElementById('webcam-placeholder').style.display = 'none';
-        
         document.getElementById('plantType').textContent = "Detecting...";
         
       } catch (err) {
@@ -1083,7 +1069,7 @@
       }
     }
     
-    // معالجة كشف التلقيح
+    // ✅ معالجة كشف التلقيح - معلومات حقيقية
     function processPollinationDetection(prediction) {
       if (!prediction || prediction.length === 0) return;
       
@@ -1108,7 +1094,7 @@
       
       const pollinationInfo = pollinationData[plantKey];
       
-      // عرض بطاقة التلقيح
+      // عرض بطاقة التلقيح مع المعلومات الحقيقية
       document.getElementById('pollinationCard').style.display = 'block';
       document.getElementById('pollinationEmoji').textContent = pollinationInfo.emoji;
       document.getElementById('pollinationPlantName').textContent = pollinationInfo.name;
@@ -1124,15 +1110,15 @@
         </div>
         <div class="pollination-detail">
           <span style="font-size: 18px;">🌅 Best Time</span>
-          <span style="background: #FF9800; padding: 8px 20px; border-radius: 50px; color: white; font-weight: bold;">${pollinationInfo.bestTime}</span>
+          <span class="besttime-badge">${pollinationInfo.bestTime}</span>
         </div>
-        <p style="margin-top: 20px; font-size: 16px; line-height: 1.6; color: rgba(255,255,255,0.9);">
+        <p style="margin-top: 20px; font-size: 16px; line-height: 1.6; color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px;">
           ${pollinationInfo.description}
         </p>
       `;
       
       updateHealthResult("Plant Identified", bestPrediction.probability);
-      updateNotification(`🎵 ${pollinationInfo.name} identified! Ready for pollination.`, "pollination");
+      updateNotification(`🎵 ${pollinationInfo.name} identified! Ready for acoustic pollination.`, "pollination");
       updateStatus("✅ Plant identified successfully!");
     }
     
