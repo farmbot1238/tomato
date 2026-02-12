@@ -21,16 +21,37 @@
     }
     
     .container {
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.85);
       border-radius: 20px;
       padding: 40px;
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9);
       border: 2px solid rgba(255, 255, 255, 0.1);
-      max-width: 900px;
+      max-width: 1000px;
       width: 95%;
       text-align: center;
       backdrop-filter: blur(5px);
       position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    /* تخصيص شريط التمرير */
+    .container::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .container::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+    }
+    
+    .container::-webkit-scrollbar-thumb {
+      background: rgba(76, 175, 80, 0.5);
+      border-radius: 10px;
+    }
+    
+    .container::-webkit-scrollbar-thumb:hover {
+      background: rgba(76, 175, 80, 0.8);
     }
     
     /* زر تبديل اللغة - أعلى اليمين */
@@ -104,10 +125,188 @@
       font-style: italic;
     }
     
-    /* كل العناصر اللي رح تتبدل حسب اللغة */
-    [data-lang] {
-      transition: all 0.2s ease;
+    /* ========== كبسة الشرح القابلة للطي ========== */
+    .about-toggle-button {
+      background: rgba(76, 175, 80, 0.15);
+      border: 2px solid #4CAF50;
+      color: white;
+      padding: 15px 25px;
+      width: 100%;
+      border-radius: 60px;
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
     }
+    
+    .about-toggle-button:hover {
+      background: rgba(76, 175, 80, 0.3);
+      border-color: #45a049;
+    }
+    
+    .toggle-icon {
+      font-size: 24px;
+      transition: transform 0.3s ease;
+    }
+    
+    .toggle-icon.rotated {
+      transform: rotate(180deg);
+    }
+    
+    .about-section {
+      display: none;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(76, 175, 80, 0.3);
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+      animation: slideDown 0.5s ease;
+    }
+    
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .about-section.show {
+      display: block;
+    }
+    
+    .about-title {
+      color: #4CAF50;
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: center;
+    }
+    
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      margin-top: 20px;
+    }
+    
+    .about-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      padding: 25px;
+      transition: all 0.3s ease;
+      border-left: 5px solid #4CAF50;
+      text-align: left;
+    }
+    
+    .about-card.disease-card {
+      border-left-color: #F44336;
+      background: rgba(244, 67, 54, 0.05);
+    }
+    
+    .about-card.pollination-card {
+      border-left-color: #9C27B0;
+      background: rgba(156, 39, 176, 0.05);
+    }
+    
+    .about-card-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .about-card-icon {
+      font-size: 36px;
+    }
+    
+    .about-card-title {
+      font-size: 22px;
+      font-weight: bold;
+      color: white;
+    }
+    
+    .about-card-disease-title {
+      color: #FF5252;
+    }
+    
+    .about-card-pollination-title {
+      color: #E1BEE7;
+    }
+    
+    .about-card-description {
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.8;
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+    
+    .about-features {
+      list-style: none;
+      padding: 0;
+      margin: 15px 0 0 0;
+    }
+    
+    .about-features li {
+      padding: 8px 0;
+      color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .about-features li:before {
+      content: "✓";
+      color: #4CAF50;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    
+    .disease-features li:before {
+      color: #FF5252;
+      content: "⚠️";
+    }
+    
+    .pollination-features li:before {
+      color: #9C27B0;
+      content: "🎵";
+    }
+    
+    .about-stats {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .stat-item {
+      text-align: center;
+    }
+    
+    .stat-number {
+      font-size: 28px;
+      font-weight: bold;
+      color: #4CAF50;
+    }
+    
+    .stat-label {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+      margin-top: 5px;
+    }
+    /* ===================================== */
     
     /* القائمة الرئيسية */
     .main-menu {
@@ -558,6 +757,41 @@
     html[dir="rtl"] .back-home-button:before {
       content: "→";
     }
+    
+    html[dir="rtl"] .about-card {
+      border-left: none;
+      border-right: 5px solid #4CAF50;
+      text-align: right;
+    }
+    
+    html[dir="rtl"] .about-card.disease-card {
+      border-right-color: #F44336;
+      border-left: none;
+    }
+    
+    html[dir="rtl"] .about-card.pollination-card {
+      border-right-color: #9C27B0;
+      border-left: none;
+    }
+    
+    html[dir="rtl"] .toggle-icon.rotated {
+      transform: rotate(-180deg);
+    }
+    
+    @media (max-width: 768px) {
+      .about-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .site-title {
+        font-size: 36px;
+      }
+      
+      .main-menu-button {
+        min-width: 280px;
+        font-size: 20px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -570,11 +804,76 @@
     </button>
     
     <!-- ✅ زر العودة للموقع الأول -->
-    <a href="https://farmbot1238.github.io/Farm-bot-/" class="back-home-button" id="backHomeButton">Back to Home</a>
+    <a href="https://farmbot1238.github.io/Farm-bot-/" class="back-home-button" id="backHomeButton">← Back to Home</a>
     
     <!-- ✅ العنوان ثابت - ما بيتغير أبداً FARM 8OT -->
     <div class="site-title">FARM 8OT</div>
     <div class="site-subtitle" id="siteSubtitle">Teachable Machine</div>
+    
+    <!-- ========== كبسة الشرح القابلة للطي ========== -->
+    <button id="aboutToggleButton" class="about-toggle-button" onclick="toggleAboutSection()">
+      <span id="aboutButtonText">📋 About FARM 8OT</span>
+      <span id="toggleIcon" class="toggle-icon">▼</span>
+    </button>
+    
+    <div id="aboutSection" class="about-section">
+      <div class="about-title" id="aboutTitle">
+        <span>🌿</span> About FARM 8OT <span>🌿</span>
+      </div>
+      
+      <div class="about-grid">
+        <!-- بطاقة النباتات المريضة -->
+        <div class="about-card disease-card" id="diseaseCard">
+          <div class="about-card-header">
+            <span class="about-card-icon">🦠</span>
+            <span class="about-card-title about-card-disease-title" id="diseaseCardTitle">Diseased Plants Detection</span>
+          </div>
+          <div class="about-card-description" id="diseaseDescription">
+            Identify plant diseases instantly using AI. Upload a photo or use your camera to detect if your tomato, potato, or pepper plants are healthy or diseased. Get immediate treatment solutions and prevention tips.
+          </div>
+          <ul class="about-features disease-features" id="diseaseFeatures">
+            <li>Detect diseases in Tomato, Potato, Pepper</li>
+            <li>Healthy vs Diseased classification</li>
+            <li>Instant treatment solutions</li>
+            <li>Prevention tips and best practices</li>
+          </ul>
+        </div>
+        
+        <!-- بطاقة دليل التلقيح -->
+        <div class="about-card pollination-card" id="pollinationAboutCard">
+          <div class="about-card-header">
+            <span class="about-card-icon">🎵</span>
+            <span class="about-card-title about-card-pollination-title" id="pollinationCardTitle">Acoustic Pollination Guide</span>
+          </div>
+          <div class="about-card-description" id="pollinationDescription">
+            Boost your crop yield with sound! Our system identifies your plant (Tomato, Pepper, Zucchini) and provides the exact sound frequency, duration, and optimal time for acoustic pollination. Based on scientific research on buzz pollination.
+          </div>
+          <ul class="about-features pollination-features" id="pollinationFeatures">
+            <li>Identify Tomato, Pepper, Zucchini plants</li>
+            <li>Optimal frequency: 100-400 Hz range</li>
+            <li>Precise timing and duration</li>
+            <li>Morning pollination window</li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- إحصائيات سريعة -->
+      <div class="about-stats">
+        <div class="stat-item">
+          <div class="stat-number">4</div>
+          <div class="stat-label" id="statPlants">Plant Types</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">2</div>
+          <div class="stat-label" id="statModes">Detection Modes</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">🌿🎵</div>
+          <div class="stat-label" id="statAI">AI Powered</div>
+        </div>
+      </div>
+    </div>
+    <!-- ============================================= -->
     
     <!-- القائمة الرئيسية -->
     <div id="mainMenu" class="main-menu">
@@ -871,8 +1170,32 @@
         langIcon: '🇺🇸',
         
         // العنوان الثابت FARM 8OT ما بيتغير ✅
-        // subtitle
         subtitle: 'Teachable Machine',
+        
+        // ===== كبسة الشرح About =====
+        aboutButton: '📋 About FARM 8OT',
+        
+        aboutTitle: '🌿 About FARM 8OT 🌿',
+        diseaseCardTitle: '🦠 Diseased Plants Detection',
+        diseaseDescription: 'Identify plant diseases instantly using AI. Upload a photo or use your camera to detect if your tomato, potato, or pepper plants are healthy or diseased. Get immediate treatment solutions and prevention tips.',
+        diseaseFeatures: [
+          'Detect diseases in Tomato, Potato, Pepper',
+          'Healthy vs Diseased classification',
+          'Instant treatment solutions',
+          'Prevention tips and best practices'
+        ],
+        pollinationCardTitle: '🎵 Acoustic Pollination Guide',
+        pollinationDescription: 'Boost your crop yield with sound! Our system identifies your plant (Tomato, Pepper, Zucchini) and provides the exact sound frequency, duration, and optimal time for acoustic pollination. Based on scientific research on buzz pollination.',
+        pollinationFeatures: [
+          'Identify Tomato, Pepper, Zucchini plants',
+          'Optimal frequency: 100-400 Hz range',
+          'Precise timing and duration',
+          'Morning pollination window'
+        ],
+        statPlants: 'Plant Types',
+        statModes: 'Detection Modes',
+        statAI: 'AI Powered',
+        // ===========================
         
         // أزرار القائمة الرئيسية
         diseasedBtn: '🦠 Diseased Plants',
@@ -921,15 +1244,9 @@
         treatments: 'Treatments',
         prevention: 'Prevention',
         
-        // بطاقة التلقيح
-        pollinationGuide: 'Pollination Guide',
-        optimalFrequency: '🎵 Optimal Frequency',
-        recommendedDuration: '⏱️ Recommended Duration',
-        bestTime: '🌅 Best Time',
-        
         // حالة الصحة
-        healthy: 'Healthy',
-        diseased: 'Diseased',
+        healthy: 'healthy',
+        diseased: 'diseased',
         plantIdentified: 'Plant Identified',
         healthCheckFailed: 'Health check failed',
         analysisComplete: 'Analysis complete!'
@@ -940,8 +1257,32 @@
         langIcon: '🇸🇦',
         
         // العنوان الثابت FARM 8OT ما بيتغير ✅
-        // subtitle
         subtitle: 'تيتشبل مشين',
+        
+        // ===== كبسة الشرح About =====
+        aboutButton: '📋 حول FARM 8OT',
+        
+        aboutTitle: '🌿 حول FARM 8OT 🌿',
+        diseaseCardTitle: '🦠 كشف النباتات المريضة',
+        diseaseDescription: 'حدد أمراض النباتات فوراً باستخدام الذكاء الاصطناعي. ارفع صورة أو استخدم الكاميرا للكشف ما إذا كانت نباتات الطماطم، البطاطا، أو الفلفل سليمة أم مريضة. احصل على حلول علاج فورية ونصائح وقائية.',
+        diseaseFeatures: [
+          'كشف الأمراض في الطماطم، البطاطا، الفلفل',
+          'تصنيف سليم / مريض',
+          'حلول علاج فورية',
+          'نصائح وقائية وأفضل الممارسات'
+        ],
+        pollinationCardTitle: '🎵 دليل التلقيح الصوتي',
+        pollinationDescription: 'عزز إنتاج محاصيلك بالصوت! نظامنا يتعرف على نباتك (طماطم، فلفل، كوسا) ويوفر لك التردد الصوتي المناسب، المدة، والوقت الأمثل للتلقيح الصوتي. مبني على أبحاث علمية حول التلقيح الاهتزازي.',
+        pollinationFeatures: [
+          'التعرف على الطماطم، الفلفل، الكوسا',
+          'التردد الأمثل: ١٠٠-٤٠٠ هرتز',
+          'توقيت ومدة دقيقة',
+          'نافذة التلقيح الصباحية'
+        ],
+        statPlants: 'أنواع النباتات',
+        statModes: 'طرق الكشف',
+        statAI: 'مدعوم بالذكاء الاصطناعي',
+        // ===========================
         
         // أزرار القائمة الرئيسية
         diseasedBtn: '🦠 النباتات المريضة',
@@ -990,12 +1331,6 @@
         treatments: 'العلاجات',
         prevention: 'الوقاية',
         
-        // بطاقة التلقيح
-        pollinationGuide: 'دليل التلقيح',
-        optimalFrequency: '🎵 التردد الأمثل',
-        recommendedDuration: '⏱️ المدة الموصى بها',
-        bestTime: '🌅 أفضل وقت',
-        
         // حالة الصحة
         healthy: 'سليم',
         diseased: 'مريض',
@@ -1004,6 +1339,24 @@
         analysisComplete: 'اكتمل التحليل!'
       }
     };
+    
+    // حالة إظهار/إخفاء قسم الشرح
+    let aboutVisible = false;
+    
+    // دالة تبديل إظهار قسم الشرح
+    function toggleAboutSection() {
+      aboutVisible = !aboutVisible;
+      const aboutSection = document.getElementById('aboutSection');
+      const toggleIcon = document.getElementById('toggleIcon');
+      
+      if (aboutVisible) {
+        aboutSection.classList.add('show');
+        toggleIcon.classList.add('rotated');
+      } else {
+        aboutSection.classList.remove('show');
+        toggleIcon.classList.remove('rotated');
+      }
+    }
     
     // دالة تبديل اللغة
     function toggleLanguage() {
@@ -1025,7 +1378,6 @@
       const t = translations[currentLanguage];
       
       // ✅ العنوان FARM 8OT ثابت - ما بيتغير
-      // document.getElementById('siteTitle').textContent = 'FARM 8OT'; (ثابت)
       document.getElementById('siteSubtitle').textContent = t.subtitle;
       
       // زر اللغة
@@ -1033,12 +1385,30 @@
       document.getElementById('langText').textContent = t.langSwitch;
       
       // زر العودة للموقع
-      document.getElementById('backHomeButton').textContent = t.backHome;
-      if (currentLanguage === 'ar') {
-        document.getElementById('backHomeButton').innerHTML = '→ ' + t.backHome;
-      } else {
-        document.getElementById('backHomeButton').innerHTML = '← ' + t.backHome;
-      }
+      document.getElementById('backHomeButton').innerHTML = (currentLanguage === 'ar' ? '→ ' : '← ') + t.backHome;
+      
+      // ===== تحديث كبسة الشرح About =====
+      document.getElementById('aboutButtonText').textContent = t.aboutButton;
+      document.getElementById('aboutTitle').innerHTML = t.aboutTitle;
+      document.getElementById('diseaseCardTitle').textContent = t.diseaseCardTitle;
+      document.getElementById('diseaseDescription').textContent = t.diseaseDescription;
+      
+      // تحديث قائمة ميزات الأمراض
+      const diseaseFeaturesList = document.getElementById('diseaseFeatures');
+      diseaseFeaturesList.innerHTML = t.diseaseFeatures.map(f => `<li>${f}</li>`).join('');
+      
+      document.getElementById('pollinationCardTitle').textContent = t.pollinationCardTitle;
+      document.getElementById('pollinationDescription').textContent = t.pollinationDescription;
+      
+      // تحديث قائمة ميزات التلقيح
+      const pollinationFeaturesList = document.getElementById('pollinationFeatures');
+      pollinationFeaturesList.innerHTML = t.pollinationFeatures.map(f => `<li>${f}</li>`).join('');
+      
+      // تحديث الإحصائيات
+      document.getElementById('statPlants').textContent = t.statPlants;
+      document.getElementById('statModes').textContent = t.statModes;
+      document.getElementById('statAI').textContent = t.statAI;
+      // ===================================
       
       // القائمة الرئيسية
       document.getElementById('diseasedBtn').innerHTML = t.diseasedBtn;
@@ -1068,7 +1438,7 @@
       
       // إذا كان هناك نص في مكان الكشف
       const plantTypeEl = document.getElementById('plantType');
-      if (plantTypeEl.textContent === 'Detecting...' || plantTypeEl.textContent === 'جاري الكشف...') {
+      if (plantTypeEl.textContent === 'Detecting...' || plantTypeEl.textContent === 'جاري الكشف...' || plantTypeEl.textContent === t.detecting) {
         plantTypeEl.textContent = t.detecting;
       }
       
@@ -1094,7 +1464,7 @@
       const info = pollinationData[plantKey];
       const t = translations[currentLanguage];
       
-      document.getElementById('pollinationGuideText').textContent = t.pollinationGuide;
+      document.getElementById('pollinationGuideText').textContent = t.pollinationTitle;
       
       if (currentLanguage === 'en') {
         document.getElementById('pollinationPlantName').textContent = info.name;
