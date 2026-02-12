@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <!-- العنوان ثابت - ما بيتغير أبداً ✅ -->
   <title>FARM 8OT - Plant Health & Pollination</title>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
@@ -32,7 +33,60 @@
       position: relative;
     }
     
-    /* اسم الموقع الجديد */
+    /* زر تبديل اللغة - أعلى اليمين */
+    .language-switch {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(76, 175, 80, 0.2);
+      color: white;
+      border: 1px solid #4CAF50;
+      padding: 8px 16px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .language-switch:hover {
+      background: rgba(76, 175, 80, 0.4);
+    }
+    
+    /* زر العودة للموقع الأول */
+    .back-home-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(76, 175, 80, 0.2);
+      color: white;
+      border: 1px solid #4CAF50;
+      padding: 10px 20px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 16px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 100;
+    }
+    
+    .back-home-button:hover {
+      background: rgba(76, 175, 80, 0.4);
+      transform: translateX(-3px);
+    }
+    
+    .back-home-button:before {
+      content: "←";
+      font-size: 18px;
+    }
+    
+    /* اسم الموقع - ثابت ما بيتغير ✅ */
     .site-title {
       color: white;
       font-size: 48px;
@@ -50,7 +104,12 @@
       font-style: italic;
     }
     
-    /* شاشة الخيارات الرئيسية */
+    /* كل العناصر اللي رح تتبدل حسب اللغة */
+    [data-lang] {
+      transition: all 0.2s ease;
+    }
+    
+    /* القائمة الرئيسية */
     .main-menu {
       display: flex;
       flex-direction: column;
@@ -271,7 +330,7 @@
       margin-bottom: 10px;
     }
     
-    /* بطاقة التلقيح - معلومات حقيقية */
+    /* بطاقة التلقيح */
     .pollination-card {
       background: rgba(156, 39, 176, 0.2);
       border: 2px solid #9C27B0;
@@ -353,35 +412,6 @@
     .notification.pollination {
       border-left-color: #9C27B0;
       background: rgba(156, 39, 176, 0.1);
-    }
-    
-    /* زر الرجوع للقائمة الرئيسية */
-    .back-menu-button {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background: rgba(76, 175, 80, 0.2);
-      color: white;
-      border: 1px solid #4CAF50;
-      padding: 10px 20px;
-      border-radius: 50px;
-      cursor: pointer;
-      font-size: 16px;
-      text-decoration: none;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .back-menu-button:hover {
-      background: rgba(76, 175, 80, 0.4);
-      transform: translateX(-3px);
-    }
-    
-    .back-menu-button:before {
-      content: "←";
-      font-size: 18px;
     }
     
     .controls-container {
@@ -509,27 +539,56 @@
       align-items: center;
       gap: 10px;
     }
+    
+    /* دعم اللغة العربية */
+    html[dir="rtl"] .back-home-button:before {
+      content: "→";
+    }
+    
+    html[dir="rtl"] .language-switch {
+      left: 20px;
+      right: auto;
+    }
+    
+    html[dir="rtl"] .back-home-button {
+      right: 20px;
+      left: auto;
+    }
+    
+    html[dir="rtl"] .back-home-button:before {
+      content: "→";
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- اسم الموقع الجديد -->
+    
+    <!-- ✅ زر تبديل اللغة - أعلى اليمين -->
+    <button id="languageSwitch" class="language-switch" onclick="toggleLanguage()">
+      <span id="langIcon">🇺🇸</span>
+      <span id="langText">English</span>
+    </button>
+    
+    <!-- ✅ زر العودة للموقع الأول -->
+    <a href="https://farmbot1238.github.io/Farm-bot-/" class="back-home-button" id="backHomeButton">Back to Home</a>
+    
+    <!-- ✅ العنوان ثابت - ما بيتغير أبداً FARM 8OT -->
     <div class="site-title">FARM 8OT</div>
-    <div class="site-subtitle">Teachable Machine</div>
+    <div class="site-subtitle" id="siteSubtitle">Teachable Machine</div>
     
     <!-- القائمة الرئيسية -->
     <div id="mainMenu" class="main-menu">
-      <button class="main-menu-button" onclick="selectDiseasedMode()">
+      <button class="main-menu-button" onclick="selectDiseasedMode()" id="diseasedBtn">
         🦠 Diseased Plants
       </button>
-      <div class="menu-description">
+      <div class="menu-description" id="diseasedDesc">
         Detect plant diseases and get treatment solutions
       </div>
       
-      <button class="main-menu-button" onclick="selectPollinationMode()" style="background: #9C27B0; box-shadow: 0 8px 25px rgba(156, 39, 176, 0.4);">
+      <button class="main-menu-button" onclick="selectPollinationMode()" style="background: #9C27B0; box-shadow: 0 8px 25px rgba(156, 39, 176, 0.4);" id="pollinationBtn">
         🎵 Pollination Guide
       </button>
-      <div class="menu-description">
+      <div class="menu-description" id="pollinationDesc">
         Identify plants and get optimal sound frequencies for pollination
       </div>
     </div>
@@ -537,9 +596,9 @@
     <!-- شاشة الاختيار -->
     <div id="choiceScreen" class="choice-screen">
       <p style="color: white; margin-bottom: 20px; font-size: 20px;" id="modeTitle">Choose detection method</p>
-      <button class="action-button camera-button" onclick="chooseCamera()">📷 Camera Detection</button>
-      <button class="action-button upload-button" onclick="chooseUpload()">📁 Upload Image</button>
-      <button class="back-button-choice" onclick="backToMainMenu()">Main Menu</button>
+      <button class="action-button camera-button" onclick="chooseCamera()" id="cameraBtn">📷 Camera Detection</button>
+      <button class="action-button upload-button" onclick="chooseUpload()" id="uploadBtn">📁 Upload Image</button>
+      <button class="back-button-choice" onclick="backToMainMenu()" id="backBtn">Main Menu</button>
     </div>
     
     <!-- حاوية الكاميرا -->
@@ -550,7 +609,7 @@
     <!-- حاوية رفع الصورة -->
     <div id="upload-container" class="upload-container">
       <div id="upload-placeholder" class="upload-placeholder">
-        <label for="fileInput" class="file-label">
+        <label for="fileInput" class="file-label" id="fileLabel">
           Click to upload plant image
         </label>
         <input type="file" id="fileInput" accept="image/*" onchange="previewImage(event)">
@@ -563,9 +622,9 @@
     
     <!-- عناصر التحكم -->
     <div id="controlsContainer" class="controls-container" style="display: none;">
-      <button class="control-button" onclick="restartDetection()">Restart</button>
-      <button class="control-button" onclick="clearResults()">Clear</button>
-      <button class="control-button" onclick="backToMainMenu()">Main Menu</button>
+      <button class="control-button" onclick="restartDetection()" id="restartBtn">Restart</button>
+      <button class="control-button" onclick="clearResults()" id="clearBtn">Clear</button>
+      <button class="control-button" onclick="backToMainMenu()" id="menuBtn">Main Menu</button>
     </div>
     
     <!-- نتائج الكشف -->
@@ -573,7 +632,7 @@
       <div class="results-grid">
         <!-- نتيجة التعرف على النبتة -->
         <div id="plantResult" class="result-card plant">
-          <div class="result-title">🌱 Plant Type</div>
+          <div class="result-title" id="plantTitle">🌱 Plant Type</div>
           <div id="plantType" class="result-value plant-type">Detecting...</div>
           <div id="plantConfidence" class="result-details">Confidence: 0.00</div>
         </div>
@@ -589,16 +648,16 @@
       
       <!-- زر حل المشكلة (للأمراض) -->
       <div id="solutionButtonContainer" style="display: none; margin-top: 20px;">
-        <button class="action-button" style="background: #4CAF50;" onclick="showSolution()">
+        <button class="action-button" style="background: #4CAF50;" onclick="showSolution()" id="solutionBtn">
           🔧 Show Treatment Solutions
         </button>
       </div>
       
-      <!-- بطاقة التلقيح - معلومات حقيقية -->
+      <!-- بطاقة التلقيح -->
       <div id="pollinationCard" class="pollination-card" style="display: none;">
         <div class="pollination-title">
           <span class="plant-emoji-big" id="pollinationEmoji">🎵</span>
-          <span id="pollinationPlantName">Plant</span> Pollination Guide
+          <span id="pollinationPlantName">Plant</span> <span id="pollinationGuideText">Pollination Guide</span>
         </div>
         <div id="pollinationContent"></div>
       </div>
@@ -615,7 +674,7 @@
     <div class="solution-content">
       <div class="solution-header">
         <h2 class="solution-title" id="solutionPlantTitle">Treatment Guide</h2>
-        <button class="close-button" onclick="closeSolution()">✕</button>
+        <button class="close-button" onclick="closeSolution()" id="closeBtn">✕</button>
       </div>
       <div class="solution-body" id="solutionContent"></div>
     </div>
@@ -636,40 +695,60 @@
     const POLLINATION_PLANT_MODEL_URL = "https://teachablemachine.withgoogle.com/models/BHRn8BcvX/";
     
     // ============================================
-    // ✅ معلومات التلقيح الحقيقية - Real Scientific Data
+    // ✅ معلومات التلقيح الحقيقية
     // ============================================
     const pollinationData = {
       'tomato': {
         emoji: '🍅',
         name: 'Tomato',
+        nameAr: 'طماطم',
         frequency: '200–400 Hz (Optimal: 250–300 Hz)',
+        frequencyAr: '٢٠٠–٤٠٠ هرتز (الأفضل: ٢٥٠–٣٠٠ هرتز)',
         time: '5–10 seconds per flower, 30–60 seconds per plant',
+        timeAr: '٥–١٠ ثواني لكل زهرة، ٣٠–٦٠ ثانية لكل نبتة',
         bestTime: '9:00 AM – 11:30 AM',
-        description: 'Tomato plants benefit from buzz pollination. Flowers are fully open and pollen is ready to release during this time. Best results achieved with consistent vibration exposure at 250–300 Hz.'
+        bestTimeAr: '٩:٠٠ صباحاً – ١١:٣٠ صباحاً',
+        description: 'Tomato plants benefit from buzz pollination. Flowers are fully open and pollen is ready to release during this time. Best results achieved with consistent vibration exposure at 250–300 Hz.',
+        descriptionAr: 'نباتات الطماطم تستفيد من التلقيح الاهتزازي. الزهور تكون مفتوحة بالكامل وحبوب اللقاح جاهزة للتحرر في هذا الوقت. أفضل النتائج تتحقق مع التعرض المستمر للاهتزاز بتردد ٢٥٠–٣٠٠ هرتز.'
       },
       'pepper': {
         emoji: '🌶️',
         name: 'Pepper',
+        nameAr: 'فلفل',
         frequency: '150–300 Hz',
+        frequencyAr: '١٥٠–٣٠٠ هرتز',
         time: '5–8 seconds per flower, 20–40 seconds per plant',
+        timeAr: '٥–٨ ثواني لكل زهرة، ٢٠–٤٠ ثانية لكل نبتة',
         bestTime: '8:30 AM – 11:00 AM',
-        description: 'Pepper plants are self-pollinating but sound waves significantly increase fruit set. Less vibration-dependent than tomatoes, but acoustic stimulation at 150–300 Hz improves pollination success rate.'
+        bestTimeAr: '٨:٣٠ صباحاً – ١١:٠٠ صباحاً',
+        description: 'Pepper plants are self-pollinating but sound waves significantly increase fruit set. Less vibration-dependent than tomatoes, but acoustic stimulation at 150–300 Hz improves pollination success rate.',
+        descriptionAr: 'نباتات الفلفل ذاتية التلقيح لكن الموجات الصوتية تزيد من عقد الثمار بشكل ملحوظ. أقل اعتماداً على الاهتزاز من الطماطم، لكن التحفيز الصوتي بتردد ١٥٠–٣٠٠ هرتز يحسن معدل نجاح التلقيح.'
       },
       'zucchini': {
         emoji: '🥒',
         name: 'Zucchini',
+        nameAr: 'كوسا',
         frequency: '100–250 Hz',
+        frequencyAr: '١٠٠–٢٥٠ هرتز',
         time: '10–15 seconds per female flower only',
+        timeAr: '١٠–١٥ ثانية للزهرة الأنثى فقط',
         bestTime: '6:00 AM – 9:00 AM ⚠️ Female flower closes after this time',
-        description: 'Requires cross-pollination between male and female flowers. A male flower must be open on the same day. Only the female flower needs vibration treatment. Pollination window is very narrow — apply early morning.'
+        bestTimeAr: '٦:٠٠ صباحاً – ٩:٠٠ صباحاً ⚠️ الزهرة الأنثى تُغلق بعد هذا الوقت',
+        description: 'Requires cross-pollination between male and female flowers. A male flower must be open on the same day. Only the female flower needs vibration treatment. Pollination window is very narrow — apply early morning.',
+        descriptionAr: 'يتطلب تلقيحاً تبادلياً بين الأزهار المذكرة والمؤنثة. يجب أن تكون زهرة ذكر مفتوحة في نفس اليوم. فقط الزهرة الأنثى تحتاج للعلاج بالاهتزاز. نافذة التلقيح ضيقة جداً — يُطبق في الصباح الباكر.'
       },
       'nothing': {
         emoji: '🌫️',
         name: 'No Plant Detected',
+        nameAr: 'لا يوجد نبات',
         frequency: '—',
+        frequencyAr: '—',
         time: '—',
+        timeAr: '—',
         bestTime: '—',
-        description: 'Please capture a clear image of the plant leaf.'
+        bestTimeAr: '—',
+        description: 'Please capture a clear image of the plant leaf.',
+        descriptionAr: 'يرجى التقاط صورة واضحة لورقة النبات.'
       }
     };
     
@@ -677,7 +756,9 @@
     const diseaseSolutions = {
       'tomato': {
         title: "🍅 Tomato Disease Solutions",
+        titleAr: "🍅 حلول أمراض الطماطم",
         commonDiseases: ["Early Blight", "Late Blight", "Bacterial Spot", "Tomato Mosaic Virus"],
+        commonDiseasesAr: ["اللفحة المبكرة", "اللفحة المتأخرة", "البقع البكتيرية", "فيروس موزاييك الطماطم"],
         treatments: [
           "Remove affected leaves immediately",
           "Apply copper-based fungicide",
@@ -685,17 +766,33 @@
           "Water at soil level, not leaves",
           "Rotate crops annually"
         ],
+        treatmentsAr: [
+          "إزالة الأوراق المصابة فوراً",
+          "استخدام مبيد فطري نحاسي",
+          "تحسين دوران الهواء",
+          "الري عند مستوى التربة وليس الأوراق",
+          "تدوير المحاصيل سنوياً"
+        ],
         prevention: [
           "Use disease-resistant varieties",
           "Space plants 24-36 inches apart",
           "Avoid overhead watering",
           "Apply mulch around plants",
           "Clean garden tools regularly"
+        ],
+        preventionAr: [
+          "استخدام أصناف مقاومة للأمراض",
+          "ترك مسافة ٦٠-٩٠ سم بين النباتات",
+          "تجنب الري العلوي",
+          "وضع نشارة حول النباتات",
+          "تنظيف أدوات الحديقة بانتظام"
         ]
       },
       'potato': {
         title: "🥔 Potato Disease Solutions",
+        titleAr: "🥔 حلول أمراض البطاطا",
         commonDiseases: ["Potato Blight", "Common Scab", "Blackleg", "Potato Virus Y"],
+        commonDiseasesAr: ["لفحة البطاطا", "الجرب الشائع", "الساق الأسود", "فيروس واي البطاطا"],
         treatments: [
           "Remove and destroy infected plants",
           "Apply approved fungicides",
@@ -703,17 +800,33 @@
           "Avoid planting in infected soil for 3-4 years",
           "Use certified disease-free seed potatoes"
         ],
+        treatmentsAr: [
+          "إزالة وتدمير النباتات المصابة",
+          "استخدام مبيدات فطرية معتمدة",
+          "تحسين تصريف التربة",
+          "تجنب الزراعة في تربة مصابة لمدة ٣-٤ سنوات",
+          "استخدام بذار بطاطا معتمد وخالٍ من الأمراض"
+        ],
         prevention: [
           "Practice crop rotation",
           "Plant in well-drained soil",
           "Harvest potatoes when mature",
           "Store in cool, dry conditions",
           "Remove volunteer potatoes"
+        ],
+        preventionAr: [
+          "ممارسة تدوير المحاصيل",
+          "الزراعة في تربة جيدة التصريف",
+          "حصاد البطاطا عند النضج",
+          "التخزين في ظروف باردة وجافة",
+          "إزالة نباتات البطاطا التلقائية"
         ]
       },
       'pepper': {
         title: "🌶️ Pepper Disease Solutions",
+        titleAr: "🌶️ حلول أمراض الفلفل",
         commonDiseases: ["Bacterial Leaf Spot", "Phytophthora Blight", "Powdery Mildew", "Blossom End Rot"],
+        commonDiseasesAr: ["تبقع الأوراق البكتيري", "لفحة فيتوفثورا", "البياض الدقيقي", "عفن الطرف الزهري"],
         treatments: [
           "Remove infected plants immediately",
           "Apply appropriate fungicides",
@@ -721,15 +834,308 @@
           "Apply calcium nitrate for blossom end rot",
           "Improve air circulation"
         ],
+        treatmentsAr: [
+          "إزالة النباتات المصابة فوراً",
+          "استخدام مبيدات فطرية مناسبة",
+          "الحفاظ على رطوبة التربة منتظمة",
+          "استخدام نترات الكالسيوم لعفن الطرف الزهري",
+          "تحسين دوران الهواء"
+        ],
         prevention: [
           "Water early in the day",
           "Use drip irrigation",
           "Space plants 18-24 inches apart",
           "Avoid working with wet plants",
           "Use mulch to prevent soil splash"
+        ],
+        preventionAr: [
+          "الري في الصباح الباكر",
+          "استخدام الري بالتنقيط",
+          "ترك مسافة ٤٥-٦٠ سم بين النباتات",
+          "تجنب العمل مع النباتات المبللة",
+          "استخدام النشارة لمنع تطاير التربة"
         ]
       }
     };
+    
+    // ============================================
+    // نظام تبديل اللغة
+    // ============================================
+    let currentLanguage = 'en'; // 'en' or 'ar'
+    
+    // ترجمة النصوص
+    const translations = {
+      'en': {
+        // زر اللغة
+        langSwitch: 'English',
+        langIcon: '🇺🇸',
+        
+        // العنوان الثابت FARM 8OT ما بيتغير ✅
+        // subtitle
+        subtitle: 'Teachable Machine',
+        
+        // أزرار القائمة الرئيسية
+        diseasedBtn: '🦠 Diseased Plants',
+        diseasedDesc: 'Detect plant diseases and get treatment solutions',
+        pollinationBtn: '🎵 Pollination Guide',
+        pollinationDesc: 'Identify plants and get optimal sound frequencies for pollination',
+        
+        // شاشة الاختيار
+        modeTitle: 'Choose detection method',
+        cameraBtn: '📷 Camera Detection',
+        uploadBtn: '📁 Upload Image',
+        backBtn: 'Main Menu',
+        
+        // عناصر التحكم
+        restartBtn: 'Restart',
+        clearBtn: 'Clear',
+        menuBtn: 'Main Menu',
+        
+        // نتائج الكشف
+        plantTitle: '🌱 Plant Type',
+        confidence: 'Confidence',
+        healthTitle: '🏥 Health Status',
+        pollinationTitle: '🎵 Pollination Guide',
+        
+        // زر حل المشكلة
+        solutionBtn: '🔧 Show Treatment Solutions',
+        
+        // إشعارات
+        analysisProgress: 'Analysis in progress...',
+        noPlantDetected: 'No plant detected in the image.',
+        
+        // العودة للموقع
+        backHome: 'Back to Home',
+        
+        // نص الكاميرا
+        cameraStarting: 'Camera is starting...',
+        fileLabel: 'Click to upload plant image',
+        detecting: 'Detecting...',
+        waitingForImage: 'Waiting for image...',
+        willCheckAfter: 'Will check after plant detection',
+        readyToIdentify: 'Ready to identify plant',
+        
+        // نافذة الحلول
+        treatmentGuide: 'Treatment Guide',
+        commonDiseases: 'Common Diseases',
+        treatments: 'Treatments',
+        prevention: 'Prevention',
+        
+        // بطاقة التلقيح
+        pollinationGuide: 'Pollination Guide',
+        optimalFrequency: '🎵 Optimal Frequency',
+        recommendedDuration: '⏱️ Recommended Duration',
+        bestTime: '🌅 Best Time',
+        
+        // حالة الصحة
+        healthy: 'Healthy',
+        diseased: 'Diseased',
+        plantIdentified: 'Plant Identified',
+        healthCheckFailed: 'Health check failed',
+        analysisComplete: 'Analysis complete!'
+      },
+      'ar': {
+        // زر اللغة
+        langSwitch: 'العربية',
+        langIcon: '🇸🇦',
+        
+        // العنوان الثابت FARM 8OT ما بيتغير ✅
+        // subtitle
+        subtitle: 'تيتشبل مشين',
+        
+        // أزرار القائمة الرئيسية
+        diseasedBtn: '🦠 النباتات المريضة',
+        diseasedDesc: 'الكشف عن أمراض النباتات والحصول على حلول العلاج',
+        pollinationBtn: '🎵 دليل التلقيح',
+        pollinationDesc: 'التعرف على النباتات والحصول على الترددات الصوتية المثلى للتلقيح',
+        
+        // شاشة الاختيار
+        modeTitle: 'اختر طريقة الكشف',
+        cameraBtn: '📷 كاميرا',
+        uploadBtn: '📁 رفع صورة',
+        backBtn: 'القائمة الرئيسية',
+        
+        // عناصر التحكم
+        restartBtn: 'إعادة تشغيل',
+        clearBtn: 'مسح',
+        menuBtn: 'القائمة الرئيسية',
+        
+        // نتائج الكشف
+        plantTitle: '🌱 نوع النبات',
+        confidence: 'نسبة الثقة',
+        healthTitle: '🏥 الحالة الصحية',
+        pollinationTitle: '🎵 دليل التلقيح',
+        
+        // زر حل المشكلة
+        solutionBtn: '🔧 عرض حلول العلاج',
+        
+        // إشعارات
+        analysisProgress: 'جاري التحليل...',
+        noPlantDetected: 'لا يوجد نبات في الصورة.',
+        
+        // العودة للموقع
+        backHome: 'العودة للرئيسية',
+        
+        // نص الكاميرا
+        cameraStarting: 'جاري تشغيل الكاميرا...',
+        fileLabel: 'اضغط لرفع صورة النبات',
+        detecting: 'جاري الكشف...',
+        waitingForImage: 'بانتظار الصورة...',
+        willCheckAfter: 'سيتم الفحص بعد الكشف عن النبات',
+        readyToIdentify: 'جاهز للتعرف على النبات',
+        
+        // نافذة الحلول
+        treatmentGuide: 'دليل العلاج',
+        commonDiseases: 'الأمراض الشائعة',
+        treatments: 'العلاجات',
+        prevention: 'الوقاية',
+        
+        // بطاقة التلقيح
+        pollinationGuide: 'دليل التلقيح',
+        optimalFrequency: '🎵 التردد الأمثل',
+        recommendedDuration: '⏱️ المدة الموصى بها',
+        bestTime: '🌅 أفضل وقت',
+        
+        // حالة الصحة
+        healthy: 'سليم',
+        diseased: 'مريض',
+        plantIdentified: 'تم التعرف على النبات',
+        healthCheckFailed: 'فشل فحص الصحة',
+        analysisComplete: 'اكتمل التحليل!'
+      }
+    };
+    
+    // دالة تبديل اللغة
+    function toggleLanguage() {
+      if (currentLanguage === 'en') {
+        currentLanguage = 'ar';
+        document.documentElement.dir = 'rtl';
+        document.documentElement.lang = 'ar';
+      } else {
+        currentLanguage = 'en';
+        document.documentElement.dir = 'ltr';
+        document.documentElement.lang = 'en';
+      }
+      
+      updateUILanguage();
+    }
+    
+    // تحديث واجهة المستخدم حسب اللغة
+    function updateUILanguage() {
+      const t = translations[currentLanguage];
+      
+      // ✅ العنوان FARM 8OT ثابت - ما بيتغير
+      // document.getElementById('siteTitle').textContent = 'FARM 8OT'; (ثابت)
+      document.getElementById('siteSubtitle').textContent = t.subtitle;
+      
+      // زر اللغة
+      document.getElementById('langIcon').textContent = t.langIcon;
+      document.getElementById('langText').textContent = t.langSwitch;
+      
+      // زر العودة للموقع
+      document.getElementById('backHomeButton').textContent = t.backHome;
+      if (currentLanguage === 'ar') {
+        document.getElementById('backHomeButton').innerHTML = '→ ' + t.backHome;
+      } else {
+        document.getElementById('backHomeButton').innerHTML = '← ' + t.backHome;
+      }
+      
+      // القائمة الرئيسية
+      document.getElementById('diseasedBtn').innerHTML = t.diseasedBtn;
+      document.getElementById('diseasedDesc').textContent = t.diseasedDesc;
+      document.getElementById('pollinationBtn').innerHTML = t.pollinationBtn;
+      document.getElementById('pollinationDesc').textContent = t.pollinationDesc;
+      
+      // شاشة الاختيار
+      document.getElementById('modeTitle').textContent = t.modeTitle;
+      document.getElementById('cameraBtn').innerHTML = t.cameraBtn;
+      document.getElementById('uploadBtn').innerHTML = t.uploadBtn;
+      document.getElementById('backBtn').textContent = t.backBtn;
+      
+      // عناصر التحكم
+      document.getElementById('restartBtn').textContent = t.restartBtn;
+      document.getElementById('clearBtn').textContent = t.clearBtn;
+      document.getElementById('menuBtn').textContent = t.menuBtn;
+      
+      // نتائج الكشف
+      document.getElementById('plantTitle').innerHTML = t.plantTitle;
+      document.getElementById('resultSubTitle').innerHTML = t.healthTitle;
+      document.getElementById('solutionBtn').innerHTML = t.solutionBtn;
+      
+      // نص الكاميرا
+      document.getElementById('webcam-placeholder').textContent = t.cameraStarting;
+      document.getElementById('fileLabel').textContent = t.fileLabel;
+      
+      // إذا كان هناك نص في مكان الكشف
+      const plantTypeEl = document.getElementById('plantType');
+      if (plantTypeEl.textContent === 'Detecting...' || plantTypeEl.textContent === 'جاري الكشف...') {
+        plantTypeEl.textContent = t.detecting;
+      }
+      
+      // تحديث بطاقة التلقيح إذا كانت ظاهرة
+      updatePollinationCardLanguage();
+      
+      // تحديث نافذة الحلول إذا كانت مفتوحة
+      if (document.getElementById('solutionModal').classList.contains('active')) {
+        showSolution();
+      }
+    }
+    
+    // تحديث بطاقة التلقيح حسب اللغة
+    function updatePollinationCardLanguage() {
+      if (!currentDetection) return;
+      
+      const plantName = currentDetection.plantType.toLowerCase();
+      let plantKey = 'nothing';
+      if (plantName.includes('tomato')) plantKey = 'tomato';
+      else if (plantName.includes('pepper')) plantKey = 'pepper';
+      else if (plantName.includes('zucchini')) plantKey = 'zucchini';
+      
+      const info = pollinationData[plantKey];
+      const t = translations[currentLanguage];
+      
+      document.getElementById('pollinationGuideText').textContent = t.pollinationGuide;
+      
+      if (currentLanguage === 'en') {
+        document.getElementById('pollinationPlantName').textContent = info.name;
+        document.getElementById('pollinationContent').innerHTML = `
+          <div class="pollination-detail">
+            <span style="font-size: 18px;">🎵 ${t.optimalFrequency}</span>
+            <span class="frequency-badge">${info.frequency}</span>
+          </div>
+          <div class="pollination-detail">
+            <span style="font-size: 18px;">⏱️ ${t.recommendedDuration}</span>
+            <span class="time-badge">${info.time}</span>
+          </div>
+          <div class="pollination-detail">
+            <span style="font-size: 18px;">🌅 ${t.bestTime}</span>
+            <span class="besttime-badge">${info.bestTime}</span>
+          </div>
+          <p style="margin-top: 20px; font-size: 16px; line-height: 1.6; color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px;">
+            ${info.description}
+          </p>
+        `;
+      } else {
+        document.getElementById('pollinationPlantName').textContent = info.nameAr;
+        document.getElementById('pollinationContent').innerHTML = `
+          <div class="pollination-detail">
+            <span style="font-size: 18px;">🎵 ${t.optimalFrequency}</span>
+            <span class="frequency-badge">${info.frequencyAr}</span>
+          </div>
+          <div class="pollination-detail">
+            <span style="font-size: 18px;">⏱️ ${t.recommendedDuration}</span>
+            <span class="time-badge">${info.timeAr}</span>
+          </div>
+          <div class="pollination-detail">
+            <span style="font-size: 18px;">🌅 ${t.bestTime}</span>
+            <span class="besttime-badge">${info.bestTimeAr}</span>
+          </div>
+          <p style="margin-top: 20px; font-size: 16px; line-height: 1.6; color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px;">
+            ${info.descriptionAr}
+          </p>
+        `;
+      }
+    }
     
     // متغيرات النظام
     let plantModel, healthModel, pollinationModel, webcam;
@@ -745,7 +1151,7 @@
     
     // تحميل النماذج عند بدء التحميل
     window.onload = function() {
-      console.log("FRAM 8OT - Plant System Ready");
+      console.log("FARM 8OT - Plant System Ready");
     };
     
     // اختيار وضع الأمراض
@@ -753,7 +1159,7 @@
       currentAppMode = 'disease';
       document.getElementById('mainMenu').style.display = 'none';
       document.getElementById('choiceScreen').style.display = 'flex';
-      document.getElementById('modeTitle').innerHTML = '🦠 Diseased Plants - Choose detection method';
+      document.getElementById('modeTitle').innerHTML = translations[currentLanguage].modeTitle;
       updateStatus("Loading disease detection models...");
       loadDiseaseModels();
     }
@@ -763,7 +1169,7 @@
       currentAppMode = 'pollination';
       document.getElementById('mainMenu').style.display = 'none';
       document.getElementById('choiceScreen').style.display = 'flex';
-      document.getElementById('modeTitle').innerHTML = '🎵 Pollination Guide - Choose detection method';
+      document.getElementById('modeTitle').innerHTML = translations[currentLanguage].modeTitle;
       updateStatus("Loading pollination detection models...");
       loadPollinationModels();
     }
@@ -773,7 +1179,6 @@
       updateStatus("Loading plant detection model...");
       
       try {
-        // تحميل نموذج التعرف على النبتة (للأمراض)
         plantModel = await tmImage.load(
           DISEASE_PLANT_MODEL_URL + "model.json",
           DISEASE_PLANT_MODEL_URL + "metadata.json"
@@ -803,7 +1208,6 @@
       updateStatus("Loading pollination plant model...");
       
       try {
-        // تحميل نموذج التعرف على النبتة (للتلقيح)
         pollinationModel = await tmImage.load(
           POLLINATION_PLANT_MODEL_URL + "model.json",
           POLLINATION_PLANT_MODEL_URL + "metadata.json"
@@ -834,7 +1238,6 @@
       currentMode = 'main';
       updateStatus("");
       
-      // إيقاف الكاميرا
       if (webcam) {
         webcam.stop();
         webcam = null;
@@ -851,7 +1254,7 @@
       document.getElementById('solutionButtonContainer').style.display = 'none';
       document.getElementById('pollinationCard').style.display = 'none';
       currentMode = 'camera';
-      updateStatus("📷 Camera mode - Detecting plant...");
+      updateStatus(translations[currentLanguage].cameraStarting);
       
       initCamera();
     }
@@ -866,13 +1269,13 @@
       document.getElementById('solutionButtonContainer').style.display = 'none';
       document.getElementById('pollinationCard').style.display = 'none';
       currentMode = 'upload';
-      updateStatus("📁 Upload mode - Ready for image");
+      updateStatus(translations[currentLanguage].readyToIdentify);
       
-      document.getElementById('plantType').textContent = "Waiting for image...";
+      document.getElementById('plantType').textContent = translations[currentLanguage].waitingForImage;
       if (currentAppMode === 'disease') {
-        document.getElementById('healthStatus').textContent = "Will check after plant detection";
+        document.getElementById('healthStatus').textContent = translations[currentLanguage].willCheckAfter;
       } else {
-        document.getElementById('healthStatus').textContent = "Ready to identify plant";
+        document.getElementById('healthStatus').textContent = translations[currentLanguage].readyToIdentify;
       }
     }
     
@@ -903,7 +1306,7 @@
         webcamContainer.appendChild(webcam.canvas);
         
         document.getElementById('webcam-placeholder').style.display = 'none';
-        document.getElementById('plantType').textContent = "Detecting...";
+        document.getElementById('plantType').textContent = translations[currentLanguage].detecting;
         
       } catch (err) {
         console.error("❌ Error starting webcam:", err);
@@ -1023,8 +1426,8 @@
         updateStatus("🌿 Plant detected! Checking health status...");
         await checkPlantHealth(sourceCanvas, bestPrediction.className);
       } else {
-        updateHealthResult("No plant detected", 0);
-        updateNotification("🌫️ No plant detected in the image.", "warning");
+        updateHealthResult(translations[currentLanguage].noPlantDetected, 0);
+        updateNotification(translations[currentLanguage].noPlantDetected, "warning");
         document.getElementById('solutionButtonContainer').style.display = 'none';
       }
     }
@@ -1032,7 +1435,7 @@
     // فحص صحة النبتة
     async function checkPlantHealth(canvas, plantType) {
       if (!healthModelLoaded) {
-        updateHealthResult("Health check unavailable", 0);
+        updateHealthResult(translations[currentLanguage].healthCheckFailed, 0);
         return;
       }
       
@@ -1052,24 +1455,24 @@
         isPlantDiseased = bestHealthPrediction.className.toLowerCase().includes('diseased');
         
         if (bestHealthPrediction.className.toLowerCase().includes('healthy')) {
-          updateNotification(`✅ ${plantType} plant is healthy! Good condition.`, "success");
+          updateNotification(`✅ ${plantType} ${translations[currentLanguage].healthy}!`, "success");
           document.getElementById('solutionButtonContainer').style.display = 'none';
         } else if (isPlantDiseased) {
-          updateNotification(`⚠️ ${plantType} plant shows signs of disease! Needs attention.`, "danger");
+          updateNotification(`⚠️ ${plantType} ${translations[currentLanguage].diseased}!`, "danger");
           document.getElementById('solutionButtonContainer').style.display = 'block';
         }
         
-        updateStatus("✅ Analysis complete!");
+        updateStatus(translations[currentLanguage].analysisComplete);
         
       } catch (err) {
         console.error("❌ Error checking plant health:", err);
-        updateHealthResult("Health check failed", 0);
+        updateHealthResult(translations[currentLanguage].healthCheckFailed, 0);
         updateNotification("❌ Could not check plant health.", "warning");
         document.getElementById('solutionButtonContainer').style.display = 'none';
       }
     }
     
-    // ✅ معالجة كشف التلقيح - معلومات حقيقية
+    // معالجة كشف التلقيح
     function processPollinationDetection(prediction) {
       if (!prediction || prediction.length === 0) return;
       
@@ -1083,8 +1486,13 @@
       const plantName = bestPrediction.className.toLowerCase();
       updatePlantResult(bestPrediction.className, bestPrediction.probability);
       
+      currentDetection = {
+        plantType: bestPrediction.className,
+        plantConfidence: bestPrediction.probability
+      };
+      
       // تحديث واجهة التلقيح
-      document.getElementById('resultSubTitle').innerHTML = '🎵 Pollination Guide';
+      document.getElementById('resultSubTitle').innerHTML = translations[currentLanguage].pollinationTitle;
       document.getElementById('healthIcon').innerHTML = '🎵';
       
       let plantKey = 'nothing';
@@ -1094,32 +1502,14 @@
       
       const pollinationInfo = pollinationData[plantKey];
       
-      // عرض بطاقة التلقيح مع المعلومات الحقيقية
       document.getElementById('pollinationCard').style.display = 'block';
       document.getElementById('pollinationEmoji').textContent = pollinationInfo.emoji;
-      document.getElementById('pollinationPlantName').textContent = pollinationInfo.name;
       
-      document.getElementById('pollinationContent').innerHTML = `
-        <div class="pollination-detail">
-          <span style="font-size: 18px;">🎵 Optimal Frequency</span>
-          <span class="frequency-badge">${pollinationInfo.frequency}</span>
-        </div>
-        <div class="pollination-detail">
-          <span style="font-size: 18px;">⏱️ Recommended Duration</span>
-          <span class="time-badge">${pollinationInfo.time}</span>
-        </div>
-        <div class="pollination-detail">
-          <span style="font-size: 18px;">🌅 Best Time</span>
-          <span class="besttime-badge">${pollinationInfo.bestTime}</span>
-        </div>
-        <p style="margin-top: 20px; font-size: 16px; line-height: 1.6; color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px;">
-          ${pollinationInfo.description}
-        </p>
-      `;
+      updatePollinationCardLanguage();
       
-      updateHealthResult("Plant Identified", bestPrediction.probability);
-      updateNotification(`🎵 ${pollinationInfo.name} identified! Ready for acoustic pollination.`, "pollination");
-      updateStatus("✅ Plant identified successfully!");
+      updateHealthResult(translations[currentLanguage].plantIdentified, bestPrediction.probability);
+      updateNotification(`🎵 ${currentLanguage === 'en' ? pollinationInfo.name : pollinationInfo.nameAr} ${translations[currentLanguage].plantIdentified}!`, "pollination");
+      updateStatus(translations[currentLanguage].analysisComplete);
     }
     
     // تحديث نتيجة النبتة
@@ -1128,7 +1518,7 @@
       const plantTypeElement = document.getElementById('plantType');
       
       plantTypeElement.textContent = plantType;
-      document.getElementById('plantConfidence').textContent = `Confidence: ${confidence.toFixed(2)}`;
+      document.getElementById('plantConfidence').innerHTML = `${translations[currentLanguage].confidence}: ${confidence.toFixed(2)}`;
       
       plantResult.classList.remove('tomato-plant', 'pepper-plant', 'potato-plant', 'zucchini-plant', 'nothing-plant');
       
@@ -1151,7 +1541,7 @@
       const healthIcon = document.getElementById('healthIcon');
       
       document.getElementById('healthStatus').textContent = healthStatus;
-      document.getElementById('healthConfidence').textContent = `Confidence: ${confidence.toFixed(2)}`;
+      document.getElementById('healthConfidence').innerHTML = `${translations[currentLanguage].confidence}: ${confidence.toFixed(2)}`;
       
       if (healthStatus.toLowerCase().includes('healthy')) {
         healthIcon.textContent = "✅";
@@ -1175,30 +1565,58 @@
       }
       
       const solution = diseaseSolutions[plantKey];
-      document.getElementById('solutionPlantTitle').textContent = solution.title;
+      const t = translations[currentLanguage];
       
-      let content = `
-        <div class="solution-section">
-          <div class="section-title">🦠 Common Diseases</div>
-          <ul style="color: white; list-style-type: none; padding-left: 0;">
-            ${solution.commonDiseases.map(d => `<li style="padding: 5px 0;">• ${d}</li>`).join('')}
-          </ul>
-        </div>
-        <div class="solution-section">
-          <div class="section-title">💊 Treatments</div>
-          <ul style="color: white; list-style-type: none; padding-left: 0;">
-            ${solution.treatments.map(t => `<li style="padding: 5px 0;">✅ ${t}</li>`).join('')}
-          </ul>
-        </div>
-        <div class="solution-section">
-          <div class="section-title">🛡️ Prevention</div>
-          <ul style="color: white; list-style-type: none; padding-left: 0;">
-            ${solution.prevention.map(p => `<li style="padding: 5px 0;">✓ ${p}</li>`).join('')}
-          </ul>
-        </div>
-      `;
+      if (currentLanguage === 'en') {
+        document.getElementById('solutionPlantTitle').textContent = solution.title;
+        
+        let content = `
+          <div class="solution-section">
+            <div class="section-title">🦠 ${t.commonDiseases}</div>
+            <ul style="color: white; list-style-type: none; padding-left: 0;">
+              ${solution.commonDiseases.map(d => `<li style="padding: 5px 0;">• ${d}</li>`).join('')}
+            </ul>
+          </div>
+          <div class="solution-section">
+            <div class="section-title">💊 ${t.treatments}</div>
+            <ul style="color: white; list-style-type: none; padding-left: 0;">
+              ${solution.treatments.map(t => `<li style="padding: 5px 0;">✅ ${t}</li>`).join('')}
+            </ul>
+          </div>
+          <div class="solution-section">
+            <div class="section-title">🛡️ ${t.prevention}</div>
+            <ul style="color: white; list-style-type: none; padding-left: 0;">
+              ${solution.prevention.map(p => `<li style="padding: 5px 0;">✓ ${p}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+        document.getElementById('solutionContent').innerHTML = content;
+      } else {
+        document.getElementById('solutionPlantTitle').textContent = solution.titleAr;
+        
+        let content = `
+          <div class="solution-section">
+            <div class="section-title">🦠 ${t.commonDiseases}</div>
+            <ul style="color: white; list-style-type: none; padding-right: 20px;">
+              ${solution.commonDiseasesAr.map(d => `<li style="padding: 5px 0;">• ${d}</li>`).join('')}
+            </ul>
+          </div>
+          <div class="solution-section">
+            <div class="section-title">💊 ${t.treatments}</div>
+            <ul style="color: white; list-style-type: none; padding-right: 20px;">
+              ${solution.treatmentsAr.map(t => `<li style="padding: 5px 0;">✅ ${t}</li>`).join('')}
+            </ul>
+          </div>
+          <div class="solution-section">
+            <div class="section-title">🛡️ ${t.prevention}</div>
+            <ul style="color: white; list-style-type: none; padding-right: 20px;">
+              ${solution.preventionAr.map(p => `<li style="padding: 5px 0;">✓ ${p}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+        document.getElementById('solutionContent').innerHTML = content;
+      }
       
-      document.getElementById('solutionContent').innerHTML = content;
       document.getElementById('solutionModal').classList.add('active');
     }
     
@@ -1234,9 +1652,9 @@
         document.getElementById('upload-placeholder').style.display = 'block';
         document.getElementById('fileInput').value = '';
         uploadedImage = null;
-        updatePlantResult("Waiting for image...", 0);
+        updatePlantResult(translations[currentLanguage].waitingForImage, 0);
         if (currentAppMode === 'disease') {
-          updateHealthResult("Will check after detection", 0);
+          updateHealthResult(translations[currentLanguage].willCheckAfter, 0);
           document.getElementById('solutionButtonContainer').style.display = 'none';
         } else {
           document.getElementById('pollinationCard').style.display = 'none';
@@ -1245,14 +1663,14 @@
     }
     
     function clearResults() {
-      updatePlantResult("Detecting...", 0);
+      updatePlantResult(translations[currentLanguage].detecting, 0);
       if (currentAppMode === 'disease') {
-        updateHealthResult("Checking...", 0);
+        updateHealthResult(translations[currentLanguage].willCheckAfter, 0);
         document.getElementById('solutionButtonContainer').style.display = 'none';
       } else {
         document.getElementById('pollinationCard').style.display = 'none';
       }
-      updateNotification("Cleared results", "info");
+      updateNotification(translations[currentLanguage].analysisProgress, "info");
     }
     
     // إغلاق النافذة عند النقر خارجها
